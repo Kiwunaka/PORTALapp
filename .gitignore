@@ -58,3 +58,6 @@ app.*.map.json
 
 
 /data
+/out/
+/windows/sign.cer
+/windows/sign.pfx
