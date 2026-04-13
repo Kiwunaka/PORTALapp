@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hiddify/core/model/app_info_entity.dart';
+import 'package:hiddify/features/portal/config/portal_public_config.dart';
 import 'package:hiddify/core/widget/premium_surfaces.dart';
 import 'package:hiddify/features/portal/model/portal_models.dart';
 import 'package:hiddify/features/portal/widget/portal_copy.dart';
@@ -262,20 +264,200 @@ String buildPortalCheckoutUrl(String rawUrl, {String? planCode}) {
   return uri.replace(queryParameters: query).toString();
 }
 
-String buildPortalDiagnosticsText({
-  required String accountId,
-  required String deviceName,
-  required String planCode,
+class _PortalSupportDiagnosticsCompat {
+  const _PortalSupportDiagnosticsCompat({
+    required this.accountId,
+    required this.deviceName,
+    required this.planCode,
+    required this.appVersion,
+    required this.platform,
+    required this.operatingSystemVersion,
+    required this.linkedTelegramId,
+    required this.linkedTelegramUsername,
+    required this.routingMode,
+    required this.dnsPolicy,
+    required this.transportProfile,
+    required this.transportKind,
+    required this.engineHint,
+    required this.profileRevision,
+    required this.packageCatalogVersion,
+    required this.rulesetVersion,
+    required this.supportRecoveryOrder,
+    required this.webappUrl,
+  });
+
+  factory _PortalSupportDiagnosticsCompat.fromPortal({
+    required dynamic portal,
+    required PortalPublicConfig config,
+    AppInfoEntity? appInfo,
+  }) {
+    final supportContext = _readDynamic(() => portal.connectionPolicy.supportContext);
+    final managedManifest = _readDynamic(() => portal.importPayload.managedManifest);
+
+    return _PortalSupportDiagnosticsCompat(
+      accountId: _readString(
+        () => portal.session.accountId,
+        fallback: 'unknown',
+      ),
+      deviceName: _readString(
+        () => portal.session.deviceName,
+        fallback: 'Current device',
+      ),
+      planCode: _readString(
+        () => portal.subscription.currentPlanCode,
+        fallback: 'unknown',
+      ),
+      appVersion: appInfo?.presentVersion ?? '',
+      platform: appInfo?.operatingSystem ?? '',
+      operatingSystemVersion: appInfo?.operatingSystemVersion ?? '',
+      linkedTelegramId: _readInt(() => portal.session.linkedTelegramId),
+      linkedTelegramUsername: _readString(
+        () => portal.session.linkedTelegramUsername,
+      ),
+      routingMode: _firstNonEmpty([
+        _readString(() => supportContext.routingMode),
+        _readString(() => portal.connectionPolicy.routingModeDefault),
+      ]),
+      dnsPolicy: _readString(() => portal.connectionPolicy.dnsPolicy),
+      transportProfile: _firstNonEmpty([
+        _readString(() => portal.connectionPolicy.transportProfile),
+        _readString(() => supportContext.transport),
+      ]),
+      transportKind: _readString(() => managedManifest.transportKind),
+      engineHint: _readString(() => managedManifest.engineHint),
+      profileRevision: _readString(() => managedManifest.profileRevision),
+      packageCatalogVersion: _readString(
+        () => portal.connectionPolicy.packageCatalogVersion,
+      ),
+      rulesetVersion: _readString(() => portal.connectionPolicy.rulesetVersion),
+      supportRecoveryOrder: _readStringList(
+        () => portal.connectionPolicy.supportRecoveryOrder,
+        fallback: const ['app', 'web', 'telegram'],
+      ),
+      webappUrl: config.webappUrl.trim(),
+    );
+  }
+
+  final String accountId;
+  final String deviceName;
+  final String planCode;
+  final String appVersion;
+  final String platform;
+  final String operatingSystemVersion;
+  final int linkedTelegramId;
+  final String linkedTelegramUsername;
+  final String routingMode;
+  final String dnsPolicy;
+  final String transportProfile;
+  final String transportKind;
+  final String engineHint;
+  final String profileRevision;
+  final String packageCatalogVersion;
+  final String rulesetVersion;
+  final List<String> supportRecoveryOrder;
+  final String webappUrl;
+
+  String linkedTelegramLabel(bool isRussian) {
+    if (linkedTelegramUsername.trim().isNotEmpty && linkedTelegramId > 0) {
+      return '@${linkedTelegramUsername.trim()} ($linkedTelegramId)';
+    }
+    if (linkedTelegramUsername.trim().isNotEmpty) {
+      return '@${linkedTelegramUsername.trim()}';
+    }
+    if (linkedTelegramId > 0) {
+      return isRussian ? 'ID $linkedTelegramId' : 'ID $linkedTelegramId';
+    }
+    return isRussian ? 'не привязан' : 'not linked';
+  }
+
+  String get recoveryOrderLabel {
+    final normalized = supportRecoveryOrder
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toList();
+    if (normalized.isEmpty) {
+      return 'app -> web -> telegram';
+    }
+    return normalized.join(' -> ');
+  }
+}
+
+PortalSupportDiagnostics buildPortalSupportDiagnostics({
+  required dynamic portal,
+  required PortalPublicConfig config,
+  AppInfoEntity? appInfo,
 }) {
-  return 'Account: $accountId\nDevice: $deviceName\nPlan: $planCode';
+  final diagnostics = _PortalSupportDiagnosticsCompat.fromPortal(
+    portal: portal,
+    config: config,
+    appInfo: appInfo,
+  );
+  return PortalSupportDiagnostics(
+    accountId: diagnostics.accountId,
+    deviceName: diagnostics.deviceName,
+    planCode: diagnostics.planCode,
+    appVersion: diagnostics.appVersion,
+    platform: diagnostics.platform,
+    operatingSystemVersion: diagnostics.operatingSystemVersion,
+    linkedTelegramId: diagnostics.linkedTelegramId,
+    linkedTelegramUsername: diagnostics.linkedTelegramUsername,
+    routingMode: diagnostics.routingMode,
+    dnsPolicy: diagnostics.dnsPolicy,
+    transportProfile: diagnostics.transportProfile,
+    transportKind: diagnostics.transportKind,
+    engineHint: diagnostics.engineHint,
+    profileRevision: diagnostics.profileRevision,
+    packageCatalogVersion: diagnostics.packageCatalogVersion,
+    rulesetVersion: diagnostics.rulesetVersion,
+    supportRecoveryOrder: diagnostics.supportRecoveryOrder,
+    webappUrl: diagnostics.webappUrl,
+  );
+}
+
+String buildPortalDiagnosticsText({
+  required PortalSupportDiagnostics diagnostics,
+  bool isRussian = false,
+}) {
+  final lines = <String>[
+    '${_diagnosticsLabel("Account", "Аккаунт", isRussian)}: ${diagnostics.accountId}',
+    '${_diagnosticsLabel("Device", "Устройство", isRussian)}: ${diagnostics.deviceName}',
+    '${_diagnosticsLabel("Plan", "План", isRussian)}: ${diagnostics.planCode}',
+    '${_diagnosticsLabel("App version", "Версия приложения", isRussian)}: ${_valueOrFallback(diagnostics.appVersion)}',
+    '${_diagnosticsLabel("Platform", "Платформа", isRussian)}: ${_combinePlatform(diagnostics.platform, diagnostics.operatingSystemVersion)}',
+    '${_diagnosticsLabel("Linked Telegram", "Telegram", isRussian)}: ${_linkedTelegramLabel(diagnostics, isRussian)}',
+    '${_diagnosticsLabel("Routing mode", "Режим маршрутизации", isRussian)}: ${_valueOrFallback(diagnostics.routingMode)}',
+    '${_diagnosticsLabel("DNS policy", "DNS-политика", isRussian)}: ${_valueOrFallback(diagnostics.dnsPolicy)}',
+    '${_diagnosticsLabel("Transport profile", "Транспортный профиль", isRussian)}: ${_valueOrFallback(diagnostics.transportProfile)}',
+    '${_diagnosticsLabel("Package catalog", "Каталог пакетов", isRussian)}: ${_valueOrFallback(diagnostics.packageCatalogVersion)}',
+    '${_diagnosticsLabel("Ruleset", "Набор правил", isRussian)}: ${_valueOrFallback(diagnostics.rulesetVersion)}',
+    '${_diagnosticsLabel("Recovery order", "Порядок восстановления", isRussian)}: ${diagnostics.recoveryOrderLabel}',
+    '${_diagnosticsLabel("Web cabinet", "Веб-кабинет", isRussian)}: ${_valueOrFallback(diagnostics.webappUrl)}',
+  ];
+
+  _appendOptionalLine(
+    lines,
+    label: _diagnosticsLabel("Transport kind", "Тип транспорта", isRussian),
+    value: diagnostics.transportKind,
+  );
+  _appendOptionalLine(
+    lines,
+    label: _diagnosticsLabel("Engine hint", "Движок", isRussian),
+    value: diagnostics.engineHint,
+  );
+  _appendOptionalLine(
+    lines,
+    label: _diagnosticsLabel("Profile revision", "Ревизия профиля", isRussian),
+    value: diagnostics.profileRevision,
+  );
+
+  return lines.join('\n');
 }
 
 Uri buildPortalSupportEmailUri({
   required String contactEmail,
-  required String accountId,
-  required String deviceName,
-  required String planCode,
+  required PortalSupportDiagnostics diagnostics,
   required String appLabel,
+  bool isRussian = false,
 }) {
   return Uri(
     scheme: 'mailto',
@@ -283,12 +465,13 @@ Uri buildPortalSupportEmailUri({
     queryParameters: {
       'subject': '$appLabel support request',
       'body': [
-        'Describe what is going wrong:',
+        isRussian
+            ? 'Опишите, что именно не работает:'
+            : 'Describe what is going wrong:',
         '',
         buildPortalDiagnosticsText(
-          accountId: accountId,
-          deviceName: deviceName,
-          planCode: planCode,
+          diagnostics: diagnostics,
+          isRussian: isRussian,
         ),
       ].join('\n'),
     },
@@ -309,6 +492,88 @@ Future<void> launchPortalLink(
       SnackBar(content: Text(failureMessage ?? copy.linkOpenFailed)),
     );
   }
+}
+
+String _diagnosticsLabel(String en, String ru, bool isRussian) {
+  return isRussian ? ru : en;
+}
+
+String _linkedTelegramLabel(
+  PortalSupportDiagnostics diagnostics,
+  bool isRussian,
+) {
+  return diagnostics.linkedTelegramLabel(isRussian);
+}
+
+String _valueOrFallback(String value) {
+  final normalized = value.trim();
+  if (normalized.isEmpty) return '--';
+  return normalized;
+}
+
+String _combinePlatform(String platform, String operatingSystemVersion) {
+  final normalizedPlatform = platform.trim();
+  final normalizedVersion = operatingSystemVersion.trim();
+  if (normalizedPlatform.isEmpty && normalizedVersion.isEmpty) return '--';
+  if (normalizedPlatform.isEmpty) return normalizedVersion;
+  if (normalizedVersion.isEmpty) return normalizedPlatform;
+  return '$normalizedPlatform $normalizedVersion';
+}
+
+void _appendOptionalLine(
+  List<String> lines, {
+  required String label,
+  required String value,
+}) {
+  final normalized = value.trim();
+  if (normalized.isEmpty) return;
+  lines.add('$label: $normalized');
+}
+
+dynamic _readDynamic(dynamic Function() reader) {
+  try {
+    return reader();
+  } catch (_) {
+    return null;
+  }
+}
+
+String _readString(
+  dynamic Function() reader, {
+  String fallback = '',
+}) {
+  final value = _readDynamic(reader);
+  if (value == null) return fallback;
+  return value.toString().trim();
+}
+
+int _readInt(dynamic Function() reader, {int fallback = 0}) {
+  final value = _readDynamic(reader);
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString() ?? '') ?? fallback;
+}
+
+List<String> _readStringList(
+  dynamic Function() reader, {
+  List<String> fallback = const [],
+}) {
+  final value = _readDynamic(reader);
+  if (value is List) {
+    final normalized = value
+        .map((entry) => entry.toString().trim())
+        .where((entry) => entry.isNotEmpty)
+        .toList();
+    if (normalized.isNotEmpty) return normalized;
+  }
+  return fallback;
+}
+
+String _firstNonEmpty(Iterable<String> values) {
+  for (final value in values) {
+    if (value.trim().isNotEmpty) return value.trim();
+  }
+  return '';
 }
 
 Future<void> copyPortalText(

@@ -39,9 +39,9 @@ void main() {
 
     expect(find.text('POKROV VPN'), findsOneWidget);
     expect(find.text('PORTAL VPN'), findsNothing);
-    expect(find.text('Zero setup. Five days on us.'), findsOneWidget);
-    expect(find.text('Start 5-day trial'), findsOneWidget);
-    expect(find.text('Telegram bonus can wait'), findsOneWidget);
+    expect(find.text('Zero setup. Five days of speed.'), findsOneWidget);
+    expect(find.text('Start 5-day test-drive'), findsOneWidget);
+    expect(find.text('Telegram bonus adds 10 more days'), findsOneWidget);
   });
 
   testWidgets('shows premium empty home state in Russian', (tester) async {
@@ -74,8 +74,8 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text('Пять дней защиты без настройки'), findsOneWidget);
-    expect(find.text('Запустить триал на 5 дней'), findsOneWidget);
-    expect(find.text('Бонус Telegram можно подключить позже'), findsOneWidget);
+    expect(find.text('Пять дней магии без настройки'), findsOneWidget);
+    expect(find.text('Запустить тест-драйв на 5 дней'), findsOneWidget);
+    expect(find.text('Бонус Telegram даёт ещё +10 дней'), findsOneWidget);
   });
 }

@@ -43,6 +43,7 @@ Bot purchase and recovery paths stay valid, but they do not replace the main app
 - `Android` is release-blocked until a real release-build audit proves that local proxy, DNS, command, and admin/control listeners are not exposed without acceptable protection
 - as of `2026-04-12`, `python scripts/release_orchestrator.py --gates-only` is green for the documented repo/static/client gate pack, but final Android publication still requires a connected-device `android_localhost_audit.py` run against a release-installed build
 - when `release_gate_check.py` includes `android-apk` or `android-aab`, it must require `ANDROID_AUDIT_SERIAL` and treat emulator serials only as adb rehearsal, not as final sign-off
+- release builds must start from a clean `libcore` checkout pinned to the SHA recorded by the parent client repo; `python scripts/run_client_release_gate.py preflight` is the canonical repo-local proof for that condition
 - `Clash API` must stay disabled by default in the shipping client; any future use remains explicit advanced opt-in only until the Android local-surface audit is fully closed
 - do not tell users that split tunneling, Private Space, Knox, Shelter, or similar app isolation tools are enough to compensate for an unauthenticated local control surface unless a dedicated security review has proven that claim
 
@@ -136,6 +137,7 @@ Current client behavior for `v1`:
 - app support should prepare account and device context before handing the user into Telegram or email
 - the client must not pretend there is a realtime in-app support chat unless such a backend actually exists
 - public recovery order stays `POKROV app -> web cabinet -> Telegram fallback`
+- support diagnostics should show routing mode, DNS policy, transport profile, ruleset/package catalog version, app version, and linked Telegram state without exposing raw secrets or share links
 
 ## Branding Requirements
 

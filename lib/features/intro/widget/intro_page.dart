@@ -25,6 +25,11 @@ class IntroPage extends HookConsumerWidget with PresLogger {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider);
+    final analyticsState = ref.watch(analyticsControllerProvider);
+    final analyticsEnabled = switch (analyticsState) {
+      AsyncData(value: final enabled) => enabled,
+      _ => false,
+    };
 
     final isStarting = useState(false);
 
@@ -57,10 +62,10 @@ class IntroPage extends HookConsumerWidget with PresLogger {
                 children: [
                   const LocalePrefTile(),
                   const SliverGap(4),
-                  const RegionPrefTile(),
-                  const SliverGap(4),
-                  const EnableAnalyticsPrefTile(),
-                  const SliverGap(4),
+                  if (analyticsState.hasValue) ...[
+                    const EnableAnalyticsPrefTile(),
+                    const SliverGap(4),
+                  ],
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text.rich(
@@ -88,9 +93,7 @@ class IntroPage extends HookConsumerWidget with PresLogger {
                       onPressed: () async {
                         if (isStarting.value) return;
                         isStarting.value = true;
-                        if (!ref
-                            .read(analyticsControllerProvider)
-                            .requireValue) {
+                        if (!analyticsEnabled) {
                           loggy.info("disabling analytics per user request");
                           try {
                             await ref

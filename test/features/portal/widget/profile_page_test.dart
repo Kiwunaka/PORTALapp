@@ -21,11 +21,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Profile'), findsOneWidget);
-    expect(find.text('POKROV VPN account'), findsOneWidget);
+    expect(find.text('POKROV Network account'), findsOneWidget);
     expect(find.text('+10 bonus days with Telegram'), findsOneWidget);
     expect(find.text('Link Telegram'), findsOneWidget);
     expect(find.text('Check bonus'), findsOneWidget);
-    expect(find.text('Connection recovery'), findsOneWidget);
+    expect(find.text('Settings recovery'), findsOneWidget);
     expect(find.text('Apps and documents'), findsOneWidget);
     expect(find.text('Open advanced settings'), findsOneWidget);
     expect(find.text('Fallback connection link'), findsNothing);

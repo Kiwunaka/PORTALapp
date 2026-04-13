@@ -25,13 +25,13 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text('Quick connect'), findsOneWidget);
-    expect(find.text('Route deck'), findsOneWidget);
+    expect(find.text('Quick start'), findsOneWidget);
+    expect(find.text('Route & Speed'), findsOneWidget);
     expect(find.text('Auto route ready'), findsOneWidget);
     expect(find.text('Netherlands'), findsOneWidget);
-    expect(find.text('Trial is live'), findsOneWidget);
+    expect(find.text('Test-drive is live'), findsOneWidget);
     expect(find.text('+10 bonus days'), findsOneWidget);
-    expect(find.text('Choose route'), findsOneWidget);
-    expect(find.text('Protected until'), findsOneWidget);
+    expect(find.text('Choose server'), findsOneWidget);
+    expect(find.text('Active until'), findsOneWidget);
   });
 }

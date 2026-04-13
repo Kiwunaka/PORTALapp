@@ -8,10 +8,12 @@ import 'package:hiddify/features/portal/model/portal_models.dart';
 class _FakePortalApiClient implements PortalApiClient {
   _FakePortalApiClient(
     this.responses, {
+    this.textResponses = const {},
     this.onPost,
   });
 
   final Map<String, Map<String, dynamic>> responses;
+  final Map<String, String> textResponses;
   final Future<Map<String, dynamic>> Function(
     String path,
     Map<String, dynamic> body,
@@ -22,6 +24,15 @@ class _FakePortalApiClient implements PortalApiClient {
     final response = responses[path];
     if (response == null) {
       throw StateError('No fake response registered for $path');
+    }
+    return response;
+  }
+
+  @override
+  Future<String> getText(String path) async {
+    final response = textResponses[path];
+    if (response == null) {
+      throw StateError('No fake text response registered for $path');
     }
     return response;
   }
@@ -41,6 +52,11 @@ class _FakePortalApiClient implements PortalApiClient {
 class _ThrowingPortalApiClient implements PortalApiClient {
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
+    throw StateError('network unavailable');
+  }
+
+  @override
+  Future<String> getText(String path) async {
     throw StateError('network unavailable');
   }
 
@@ -100,6 +116,7 @@ void main() {
                 'support_context': {
                   'routing_mode': 'all_except_ru',
                 },
+                'support_recovery_order': ['app', 'web', 'telegram'],
               },
             }
           },
@@ -118,6 +135,7 @@ void main() {
             'client_policy': {
               'dns_policy': 'ru_direct_split',
               'package_catalog_version': '2026.04.13.1',
+              'ruleset_version': '2026.04.13.rules',
               'support_context': {
                 'ip_version_preference': 'ipv4_only',
               },
@@ -283,6 +301,10 @@ void main() {
         '2026.04.13.1',
       );
       expect(
+        experience.connectionPolicy.rulesetVersion,
+        '2026.04.13.rules',
+      );
+      expect(
         experience.connectionPolicy.supportContext.transport,
         'grpc_443_primary',
       );
@@ -293,6 +315,10 @@ void main() {
       expect(
         experience.connectionPolicy.supportContext.ipVersionPreference,
         'ipv4_only',
+      );
+      expect(
+        experience.connectionPolicy.supportRecoveryOrder,
+        equals(<String>['app', 'web', 'telegram']),
       );
     });
 
@@ -342,12 +368,14 @@ void main() {
       expect(experience.connectionPolicy.transportProfile, isEmpty);
       expect(experience.connectionPolicy.dnsPolicy, isEmpty);
       expect(experience.connectionPolicy.packageCatalogVersion, isEmpty);
+      expect(experience.connectionPolicy.rulesetVersion, isEmpty);
       expect(experience.connectionPolicy.supportContext.transport, isEmpty);
       expect(experience.connectionPolicy.supportContext.routingMode, isEmpty);
       expect(
         experience.connectionPolicy.supportContext.ipVersionPreference,
         isEmpty,
       );
+      expect(experience.connectionPolicy.supportRecoveryOrder, isEmpty);
       expect(experience.subscription.plans, isNotEmpty);
     });
 
@@ -407,11 +435,13 @@ void main() {
                   'transport_profile': 'grpc_443_primary',
                   'dns_policy': 'ru_direct_split',
                   'package_catalog_version': '2026.04.13.1',
+                  'ruleset_version': '2026.04.13.rules',
                   'support_context': {
                     'transport': 'grpc_443_primary',
                     'routing_mode': 'all_except_ru',
                     'ip_version_preference': 'ipv4_only',
                   },
+                  'support_recovery_order': ['app', 'web', 'telegram'],
                 },
                 'expiry_at': '2026-03-24T00:00:00Z',
                 'devices': [
@@ -457,6 +487,15 @@ void main() {
                     'is_healthy': true,
                   }
                 ],
+              },
+              'provisioning': {
+                'status': 'ready',
+                'managed_manifest': {
+                  'url': '/api/client/managed-manifest/install-123',
+                  'transport_kind': 'managed-http',
+                  'engine_hint': 'sing-box',
+                  'profile_revision': 'rev-7',
+                },
               },
             },
           },
@@ -494,11 +533,13 @@ void main() {
                   'transport_profile': 'grpc_443_primary',
                   'dns_policy': 'ru_direct_split',
                   'package_catalog_version': '2026.04.13.1',
+                  'ruleset_version': '2026.04.13.rules',
                   'support_context': {
                     'transport': 'grpc_443_primary',
                     'routing_mode': 'all_except_ru',
                     'ip_version_preference': 'ipv4_only',
                   },
+                  'support_recovery_order': ['app', 'web', 'telegram'],
                 },
                 'expiry_at': '2026-03-24T00:00:00Z',
                 'devices': [
@@ -545,6 +586,15 @@ void main() {
                   }
                 ],
               },
+              'provisioning': {
+                'status': 'ready',
+                'managed_manifest': {
+                  'url': '/api/client/managed-manifest/install-123',
+                  'transport_kind': 'managed-http',
+                  'engine_hint': 'sing-box',
+                  'profile_revision': 'rev-7',
+                },
+              },
             },
           };
         }),
@@ -579,6 +629,10 @@ void main() {
         '2026.04.13.1',
       );
       expect(
+        experience.connectionPolicy.rulesetVersion,
+        '2026.04.13.rules',
+      );
+      expect(
         experience.connectionPolicy.supportContext.transport,
         'grpc_443_primary',
       );
@@ -589,6 +643,26 @@ void main() {
       expect(
         experience.connectionPolicy.supportContext.ipVersionPreference,
         'ipv4_only',
+      );
+      expect(
+        experience.connectionPolicy.supportRecoveryOrder,
+        equals(<String>['app', 'web', 'telegram']),
+      );
+      expect(
+        experience.importPayload.managedManifest.url,
+        '/api/client/managed-manifest/install-123',
+      );
+      expect(
+        experience.importPayload.managedManifest.transportKind,
+        'managed-http',
+      );
+      expect(
+        experience.importPayload.managedManifest.engineHint,
+        'sing-box',
+      );
+      expect(
+        experience.importPayload.managedManifest.profileRevision,
+        'rev-7',
       );
       expect(capturedBody, isNotNull);
       expect(capturedBody!['install_id'], equals('install-123'));
@@ -649,6 +723,32 @@ void main() {
       expect(bonus.alreadyClaimed, isFalse);
       expect(bonus.premiumDays, equals(10));
       expect(bonus.linkedTelegramUsername, equals('portal_user'));
+    });
+
+    test('fetchManagedManifest returns raw manifest body from portal api',
+        () async {
+      final repository = PortalRepositoryImpl(
+        apiClient: _FakePortalApiClient(
+          const {},
+          textResponses: const {
+            '/api/client/managed-manifest/install-123': '{"kind":"managed"}',
+          },
+        ),
+        config: PortalPublicConfig.fromMap(const {}),
+        sessionStore:
+            _MemoryPortalSessionStore(sessionToken: 'runtime-session-123'),
+      );
+
+      final manifestBody = await repository.fetchManagedManifest(
+        const PortalManagedManifest(
+          url: '/api/client/managed-manifest/install-123',
+          transportKind: 'managed-http',
+          engineHint: 'sing-box',
+          profileRevision: 'rev-7',
+        ),
+      );
+
+      expect(manifestBody, equals('{"kind":"managed"}'));
     });
   });
 }

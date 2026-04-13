@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/preferences/preferences_provider.dart';
 import 'package:hiddify/features/config_option/data/config_option_repository.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
@@ -104,21 +105,43 @@ void main() {
       expect(sanitized.localDnsPort, equals(0));
     });
 
-    test('keeps blocked-only preset out of the public picker by default', () {
+    test('keeps blocked-only preset out of the public picker', () {
       expect(
-        RoutingMode.global.visibleChoices(),
-        equals(const [RoutingMode.global, RoutingMode.allExceptRu]),
+        consumerRoutingChoices(selected: RoutingMode.global),
+        equals(const [RoutingMode.allExceptRu, RoutingMode.global]),
       );
       expect(
-        RoutingMode.blockedOnly.visibleChoices(
+        consumerRoutingChoices(
           selected: RoutingMode.blockedOnly,
         ),
-        equals(const [
-          RoutingMode.global,
-          RoutingMode.allExceptRu,
-          RoutingMode.blockedOnly,
-        ]),
+        equals(const [RoutingMode.allExceptRu, RoutingMode.global]),
       );
+    });
+
+    test('uses public routing labels for the consumer path', () {
+      final t = AppLocale.en.build();
+
+      expect(presentConsumerRoutingMode(RoutingMode.global, t), 'Full tunnel');
+      expect(
+        presentConsumerRoutingMode(RoutingMode.allExceptRu, t),
+        'All except RU',
+      );
+    });
+
+    test('normalizes legacy blocked-only preference back to all_except_ru', () async {
+      SharedPreferences.setMockInitialValues({
+        'routing-mode': RoutingMode.blockedOnly.name,
+      });
+      final preferences = await SharedPreferences.getInstance();
+      final container = ProviderContainer(
+        overrides: [
+          sharedPreferencesProvider.overrideWith((ref) async => preferences),
+        ],
+      );
+      addTearDown(container.dispose);
+      await container.read(sharedPreferencesProvider.future);
+
+      expect(container.read(ConfigOptions.routingMode), RoutingMode.allExceptRu);
     });
   });
 }

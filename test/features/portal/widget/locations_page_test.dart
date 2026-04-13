@@ -51,8 +51,8 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text('Locations unlock after activation'), findsOneWidget);
-    expect(find.text('Return to VPN'), findsOneWidget);
+    expect(find.text('Locations unlock after start'), findsOneWidget);
+    expect(find.text('Return to app'), findsOneWidget);
     expect(find.text('Netherlands'), findsNothing);
     expect(find.text('Poland'), findsNothing);
   });

@@ -275,18 +275,103 @@ class DownloadTarget {
   final String docsUrl;
 }
 
+class PortalManagedManifest {
+  const PortalManagedManifest({
+    this.url = '',
+    this.transportKind = '',
+    this.engineHint = '',
+    this.profileRevision = '',
+  });
+
+  final String url;
+  final String transportKind;
+  final String engineHint;
+  final String profileRevision;
+
+  bool get isConfigured => url.trim().isNotEmpty;
+}
+
+class PortalSupportDiagnostics {
+  const PortalSupportDiagnostics({
+    this.accountId = '',
+    this.deviceName = '',
+    this.planCode = '',
+    this.appVersion = '',
+    this.platform = '',
+    this.operatingSystemVersion = '',
+    this.linkedTelegramId = 0,
+    this.linkedTelegramUsername = '',
+    this.routingMode = '',
+    this.dnsPolicy = '',
+    this.transportProfile = '',
+    this.transportKind = '',
+    this.engineHint = '',
+    this.profileRevision = '',
+    this.packageCatalogVersion = '',
+    this.rulesetVersion = '',
+    this.supportRecoveryOrder = const [],
+    this.webappUrl = '',
+  });
+
+  final String accountId;
+  final String deviceName;
+  final String planCode;
+  final String appVersion;
+  final String platform;
+  final String operatingSystemVersion;
+  final int linkedTelegramId;
+  final String linkedTelegramUsername;
+  final String routingMode;
+  final String dnsPolicy;
+  final String transportProfile;
+  final String transportKind;
+  final String engineHint;
+  final String profileRevision;
+  final String packageCatalogVersion;
+  final String rulesetVersion;
+  final List<String> supportRecoveryOrder;
+  final String webappUrl;
+
+  String linkedTelegramLabel(bool isRussian) {
+    final username = linkedTelegramUsername.trim();
+    if (username.isNotEmpty && linkedTelegramId > 0) {
+      return '@$username ($linkedTelegramId)';
+    }
+    if (username.isNotEmpty) {
+      return '@$username';
+    }
+    if (linkedTelegramId > 0) {
+      return 'ID $linkedTelegramId';
+    }
+    return isRussian ? 'не привязан' : 'not linked';
+  }
+
+  String get recoveryOrderLabel {
+    final normalized = supportRecoveryOrder
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toList(growable: false);
+    if (normalized.isEmpty) {
+      return 'app -> web -> telegram';
+    }
+    return normalized.join(' -> ');
+  }
+}
+
 class ImportPayload {
   const ImportPayload({
     required this.subscriptionUrl,
     required this.smartUrl,
     required this.plainUrl,
     required this.qrValue,
+    this.managedManifest = const PortalManagedManifest(),
   });
 
   final String subscriptionUrl;
   final String smartUrl;
   final String plainUrl;
   final String qrValue;
+  final PortalManagedManifest managedManifest;
 }
 
 class PortalConnectionSupportContext {
@@ -307,6 +392,8 @@ class PortalConnectionPolicy {
     this.transportProfile = '',
     this.dnsPolicy = '',
     this.packageCatalogVersion = '',
+    this.rulesetVersion = '',
+    this.supportRecoveryOrder = const [],
     this.supportContext = const PortalConnectionSupportContext(),
   });
 
@@ -314,6 +401,8 @@ class PortalConnectionPolicy {
   final String transportProfile;
   final String dnsPolicy;
   final String packageCatalogVersion;
+  final String rulesetVersion;
+  final List<String> supportRecoveryOrder;
   final PortalConnectionSupportContext supportContext;
 }
 

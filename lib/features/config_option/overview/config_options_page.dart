@@ -4,7 +4,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/optional_range.dart';
-import 'package:hiddify/core/model/region.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/widget/adaptive_icon.dart';
 import 'package:hiddify/core/widget/tip_card.dart';
@@ -144,23 +143,14 @@ class ConfigOptionsPage extends HookConsumerWidget {
                   ChoicePreferenceWidget(
                     selected: ref.watch(ConfigOptions.routingMode),
                     preferences: ref.watch(ConfigOptions.routingMode.notifier),
-                    choices: ref
-                        .watch(ConfigOptions.routingMode)
-                        .visibleChoices(
-                          selected: ref.watch(ConfigOptions.routingMode),
-                        ),
+                    choices: consumerRoutingChoices(
+                      selected: ref.watch(ConfigOptions.routingMode),
+                    ),
                     title: 'Routing preset',
-                    presentChoice: (value) => value.present(t),
+                    presentChoice: (value) =>
+                        presentConsumerRoutingMode(value, t),
                     onChanged: (val) =>
                         ref.watch(ConfigOptions.directDnsAddress.notifier).reset(),
-                  ),
-                  ChoicePreferenceWidget(
-                    selected: ref.watch(ConfigOptions.region),
-                    preferences: ref.watch(ConfigOptions.region.notifier),
-                    choices: Region.values,
-                    title: t.settings.general.region,
-                    presentChoice: (value) => value.present(t),
-                    onChanged: (val) => ref.watch(ConfigOptions.directDnsAddress.notifier).reset(),
                   ),
                   SwitchListTile(
                     title: Text(experimental(t.config.blockAds)),

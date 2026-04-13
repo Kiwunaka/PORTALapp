@@ -66,4 +66,32 @@ void main() {
     expect(requestedHeaders['X-App-Session-Token'], equals('runtime-token'));
     expect(requestedHeaders['X-Portal-Install-Id'], equals('install-123'));
   });
+
+  test('fetches managed manifest text with runtime auth headers', () async {
+    late Uri requestedUri;
+    late Map<String, String> requestedHeaders;
+
+    final client = HttpPortalApiClient(
+      config: PortalPublicConfig.fromMap(const {
+        'PORTAL_API_BASE_URL': '',
+      }),
+      sessionStore: _MemoryPortalSessionStore(sessionToken: 'runtime-token'),
+      client: MockClient((request) async {
+        requestedUri = request.url;
+        requestedHeaders = request.headers;
+        return http.Response('{"kind":"managed"}', 200);
+      }),
+    );
+
+    final body = await client.getText('/api/client/managed-manifest');
+
+    expect(body, equals('{"kind":"managed"}'));
+    expect(
+      requestedUri.toString(),
+      equals('https://api.pokrov.space/api/client/managed-manifest'),
+    );
+    expect(requestedHeaders['Authorization'], equals('Bearer runtime-token'));
+    expect(requestedHeaders['X-App-Session-Token'], equals('runtime-token'));
+    expect(requestedHeaders['X-Portal-Install-Id'], equals('install-123'));
+  });
 }

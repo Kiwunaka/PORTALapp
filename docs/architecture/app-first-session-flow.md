@@ -52,6 +52,9 @@ Current `client_policy` fields:
 
 - `routing_mode_default`
 - `transport_profile`
+- `transport_kind`
+- `engine_hint`
+- `profile_revision`
 - `dns_policy`
 - `package_catalog_version`
 - `ruleset_version`
@@ -68,8 +71,9 @@ As of 2026-03-20, the client-side foundation already covers:
 - runtime app `session_token`
 - device context headers on portal API calls
 - `Try free` action from the empty home screen
-- silent subscription import into the existing profile pipeline
-- automatic activation of the imported profile
+- managed manifest fetch from `GET /api/client/profile/managed`
+- automatic application of the returned engine-aware config payload
+- `subscription_url` fallback for manual import and recovery when the managed manifest is unavailable
 
 That means the remaining work is mostly final UX polish and backend contract alignment rather than first-principles plumbing.
 
@@ -89,7 +93,9 @@ Shared-surface config note:
 - Flutter consumes the synced adapter file `lib/features/portal/config/shared_surface_facts.dart`
 - current public language should expose only `All except RU` and `Full tunnel`; internal names such as `global` or `blockedOnly` stay implementation details
 - public consumer connection stays `TUN`-first; loopback proxy mechanics remain advanced or internal-only
-- public routing defaults should stay aligned with shared facts: `All except RU`, `grpc_443_primary`, `ru_direct_split`
+- public routing defaults should stay aligned with shared facts: `All except RU`, rollout-selected transport, and `ru_direct_split`
+- `legacy_reality_fallback` remains the public baseline until canary cohorts are explicitly promoted to `grpc_443_primary`
+- support diagnostics should include routing mode, DNS policy, transport profile, ruleset version, app version, linked Telegram state, and `support_recovery_order`
 
 Android direct-app note:
 
@@ -147,6 +153,7 @@ Client UX rule:
 - static marketing download CTAs are not driven by this runtime payload and must be rebuilt/redeployed when public Android or Windows URLs change
 - signed release builds inject updater/source-code metadata through `PORTAL_RELEASE_REPOSITORY_URL`, `PORTAL_RELEASES_API_URL`, `PORTAL_RELEASES_LATEST_URL`, `PORTAL_RELEASES_APPCAST_URL`, and `PORTAL_WARP_DEFAULTS_URL`
 - local non-release builds keep updater and source-code surfaces disabled instead of falling back to a personal repository URL
+- release verification must start from a clean `libcore` checkout pinned to the parent repo SHA; `python scripts/run_client_release_gate.py preflight` is the canonical root-level check before Flutter tests or artifact builds
 - `AAB`, `MSIX`, and portable `ZIP` remain release/store artifacts rather than first-layer client download targets today
 - when `release_gate_check.py` includes Android build gates, it must also include `python scripts/android_localhost_audit.py` against a release-installed build on a physical device via `ANDROID_AUDIT_SERIAL`
 

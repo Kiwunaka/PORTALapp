@@ -19,8 +19,8 @@ final portalTrialActivatorProvider = Provider<PortalTrialActivator>(
   ),
 );
 
-final portalTrialActivationControllerProvider = StateNotifierProvider.autoDispose<
-    PortalTrialActivationController, AsyncValue<void>>(
+final portalTrialActivationControllerProvider = StateNotifierProvider
+    .autoDispose<PortalTrialActivationController, AsyncValue<void>>(
   (ref) => PortalTrialActivationController(ref),
 );
 
@@ -33,7 +33,9 @@ class PortalTrialActivationController extends StateNotifier<AsyncValue<void>> {
     if (state.isLoading) return;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await ref.read(portalTrialActivatorProvider).activateTrial(locale: locale);
+      await ref
+          .read(portalTrialActivatorProvider)
+          .activateTrial(locale: locale);
       ref.invalidate(activeProfileProvider);
       ref.invalidate(hasAnyProfileProvider);
       ref.invalidate(portalExperienceProvider);
@@ -61,19 +63,42 @@ class PortalTrialActivator {
       platform: appInfo.operatingSystem,
       operatingSystemVersion: appInfo.operatingSystemVersion,
       appVersion: appInfo.version,
-      localeTag: locale?.languageCode ?? PlatformDispatcher.instance.locale.languageCode,
+      localeTag: locale?.languageCode ??
+          PlatformDispatcher.instance.locale.languageCode,
       timeZone: DateTime.now().timeZoneName,
     );
 
     final experience = await portalRepository.startTrial(request);
     final subscriptionUrl = experience.importPayload.subscriptionUrl.trim();
+    final profileRepository = await loadProfileRepository();
+    final managedManifest = experience.importPayload.managedManifest;
+    if (managedManifest.isConfigured) {
+      try {
+        final manifestBody = await portalRepository.fetchManagedManifest(
+          managedManifest,
+        );
+        if (manifestBody.trim().isNotEmpty) {
+          await profileRepository
+              .addByContent(
+                manifestBody,
+                name: _managedProfileName(experience, managedManifest),
+                markAsActive: true,
+              )
+              .getOrElse((failure) => throw failure)
+              .run();
+          return experience;
+        }
+      } catch (_) {
+        if (subscriptionUrl.isEmpty) rethrow;
+      }
+    }
+
     if (subscriptionUrl.isEmpty) {
       throw const FormatException(
-        'Trial activation did not return a subscription URL.',
+        'Trial activation did not return an importable access payload.',
       );
     }
 
-    final profileRepository = await loadProfileRepository();
     await profileRepository
         .addByUrl(
           subscriptionUrl,
@@ -91,6 +116,19 @@ String _deviceNameFrom(AppInfoEntity appInfo) {
     'android' => 'Android device',
     'windows' => 'Windows PC',
     final platform when platform.isEmpty => 'Current device',
-    final platform => '${platform[0].toUpperCase()}${platform.substring(1)} device',
+    final platform =>
+      '${platform[0].toUpperCase()}${platform.substring(1)} device',
   };
+}
+
+String _managedProfileName(
+  PortalExperience experience,
+  PortalManagedManifest manifest,
+) {
+  final suffix = manifest.profileRevision.isNotEmpty
+      ? manifest.profileRevision
+      : manifest.transportKind.isNotEmpty
+          ? manifest.transportKind
+          : experience.session.accountId;
+  return 'POKROV managed $suffix';
 }

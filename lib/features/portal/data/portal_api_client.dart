@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 abstract interface class PortalApiClient {
   Future<Map<String, dynamic>> getJson(String path);
 
+  Future<String> getText(String path);
+
   Future<Map<String, dynamic>> postJson(
     String path,
     Map<String, dynamic> body,
@@ -34,6 +36,15 @@ class HttpPortalApiClient implements PortalApiClient {
   }
 
   @override
+  Future<String> getText(String path) async {
+    final response = await _client.get(
+      _resolve(path),
+      headers: _headers(),
+    );
+    return _decodeText(response);
+  }
+
+  @override
   Future<Map<String, dynamic>> postJson(
     String path,
     Map<String, dynamic> body,
@@ -55,8 +66,9 @@ class HttpPortalApiClient implements PortalApiClient {
 
   Map<String, String> _headers({bool contentType = false}) {
     final runtimeSessionToken = sessionStore?.readSessionTokenSync() ?? '';
-    final authToken =
-        runtimeSessionToken.isNotEmpty ? runtimeSessionToken : config.webSessionToken;
+    final authToken = runtimeSessionToken.isNotEmpty
+        ? runtimeSessionToken
+        : config.webSessionToken;
     final installId = sessionStore?.readInstallIdSync() ?? '';
     return {
       if (contentType) 'Content-Type': 'application/json',
@@ -80,5 +92,14 @@ class HttpPortalApiClient implements PortalApiClient {
     final parsed = jsonDecode(response.body);
     if (parsed is Map<String, dynamic>) return parsed;
     throw const FormatException('Portal API payload is not an object');
+  }
+
+  String _decodeText(http.Response response) {
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw StateError(
+        'Portal API error ${response.statusCode}: ${response.body}',
+      );
+    }
+    return response.body;
   }
 }

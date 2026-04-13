@@ -32,6 +32,8 @@ abstract interface class PortalRepository {
 
   Future<PortalExperience> startTrial(PortalStartTrialRequest request);
 
+  Future<String> fetchManagedManifest(PortalManagedManifest manifest);
+
   Future<TelegramLinkSession> requestTelegramLink();
 
   Future<TelegramBonusClaimResult> claimTelegramBonus();
@@ -114,10 +116,18 @@ class PortalRepositoryImpl implements PortalRepository {
         ticketsJson: _map(experiencePayload['tickets']),
         appsJson: _map(experiencePayload['apps']),
         nodeStatusJson: _map(experiencePayload['node_status']),
+        provisioningJson: _map(experiencePayload['provisioning']),
       );
     }
 
     return getExperience();
+  }
+
+  @override
+  Future<String> fetchManagedManifest(PortalManagedManifest manifest) async {
+    final manifestUrl = manifest.url.trim();
+    if (manifestUrl.isEmpty) return '';
+    return apiClient.getText(manifestUrl);
   }
 
   @override
@@ -159,6 +169,7 @@ class PortalRepositoryImpl implements PortalRepository {
     required Map<String, dynamic> ticketsJson,
     required Map<String, dynamic> appsJson,
     required Map<String, dynamic> nodeStatusJson,
+    Map<String, dynamic> provisioningJson = const {},
   }) {
     final sessionUser = _sessionUser(sessionJson);
     final dashboard = _buildDashboardSummary(dashboardJson).copyWithNodeHealth(
@@ -242,7 +253,10 @@ class PortalRepositoryImpl implements PortalRepository {
       ),
       supportThreads: _buildSupportThreads(ticketsJson),
       downloads: _buildDownloadTargets(appsJson),
-      importPayload: _buildImportPayload(dashboard.connectionKey),
+      importPayload: _buildImportPayload(
+        dashboard.connectionKey,
+        provisioningJson: provisioningJson,
+      ),
       connectionPolicy: _buildConnectionPolicy(
         sessionJson: sessionJson,
         dashboardJson: dashboardJson,
@@ -420,13 +434,20 @@ class PortalRepositoryImpl implements PortalRepository {
     return PortalExperience.demo(config).downloads;
   }
 
-  ImportPayload _buildImportPayload(String subscriptionUrl) {
+  ImportPayload _buildImportPayload(
+    String subscriptionUrl, {
+    Map<String, dynamic> provisioningJson = const {},
+  }) {
+    final managedManifest = _buildManagedManifest(
+      _map(provisioningJson['managed_manifest']),
+    );
     if (subscriptionUrl.isEmpty) {
-      return const ImportPayload(
+      return ImportPayload(
         subscriptionUrl: '',
         smartUrl: '',
         plainUrl: '',
         qrValue: '',
+        managedManifest: managedManifest,
       );
     }
     final smartUrl = subscriptionUrl.contains('?')
@@ -440,6 +461,16 @@ class PortalRepositoryImpl implements PortalRepository {
       smartUrl: smartUrl,
       plainUrl: plainUrl,
       qrValue: subscriptionUrl,
+      managedManifest: managedManifest,
+    );
+  }
+
+  PortalManagedManifest _buildManagedManifest(Map<String, dynamic> payload) {
+    return PortalManagedManifest(
+      url: _asString(payload['url']),
+      transportKind: _asString(payload['transport_kind']),
+      engineHint: _asString(payload['engine_hint']),
+      profileRevision: _asString(payload['profile_revision']),
     );
   }
 
@@ -469,6 +500,11 @@ class PortalRepositoryImpl implements PortalRepository {
       packageCatalogVersion: _firstPolicyString(
         policySources,
         'package_catalog_version',
+      ),
+      rulesetVersion: _firstPolicyString(policySources, 'ruleset_version'),
+      supportRecoveryOrder: _firstPolicyStringList(
+        policySources,
+        'support_recovery_order',
       ),
       supportContext: PortalConnectionSupportContext(
         transport: _firstPolicyString(supportSources, 'transport'),
@@ -579,4 +615,25 @@ String _firstPolicyString(Iterable<Map<String, dynamic>> sources, String key) {
     }
   }
   return '';
+}
+
+List<String> _firstPolicyStringList(
+  Iterable<Map<String, dynamic>> sources,
+  String key,
+) {
+  for (final source in sources) {
+    final values = _asStringList(source[key]);
+    if (values.isNotEmpty) {
+      return values;
+    }
+  }
+  return const [];
+}
+
+List<String> _asStringList(Object? value) {
+  if (value is! List) return const [];
+  return value
+      .map((item) => _asString(item))
+      .where((item) => item.isNotEmpty)
+      .toList(growable: false);
 }

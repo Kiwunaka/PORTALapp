@@ -127,15 +127,15 @@ void main() {
       await File('assets/translations/strings_fa.i18n.json').readAsString(),
     ) as Map<String, dynamic>;
 
-    expect(arabic['general']['appTitle'], 'POKROV VPN');
-    expect(kurdish['general']['appTitle'], 'POKROV VPN');
-    expect(persian['general']['appTitle'], 'POKROV VPN');
+    expect(arabic['general']['appTitle'], 'POKROV Network');
+    expect(kurdish['general']['appTitle'], 'POKROV Network');
+    expect(persian['general']['appTitle'], 'POKROV Network');
 
     final kurdishText = kurdish['play']['full_description'] as String;
     final persianText = persian['play']['full_description'] as String;
     expect(kurdishText, isNot(contains('NikitaSH999/pokrov-vpn')));
     expect(persianText, isNot(contains('NikitaSH999/pokrov-vpn')));
-    expect(persianText, contains('هدف اصلی POKROV VPN'));
+    expect(persianText, contains('POKROV Network'));
   });
   test('release message and apple readiness metadata use pokrov branding',
       () async {
@@ -327,6 +327,17 @@ void main() {
     expect(buildScript, isNot(contains('go get github.com/akavel/rsrc')));
     expect(buildScript, contains('go install github.com/akavel/rsrc@v0.10.2'));
     expect(goMod, isNot(contains('github.com/akavel/rsrc')));
+  });
+
+  test('libcore release helpers use pokrov cli naming', () async {
+    final dockerScript = await File('libcore/docker/hiddify.sh').readAsString();
+    final legacyBuildWorkflow =
+        await File('libcore/.github/workflows/build.yml').readAsString();
+
+    expect(dockerScript, contains('/hiddify/POKROVCli run'));
+    expect(dockerScript, isNot(contains('/hiddify/HiddifyCli run')));
+    expect(legacyBuildWorkflow, contains('POKROVCli(\\.exe)?'));
+    expect(legacyBuildWorkflow, isNot(contains('HiddifyCli(\\.exe)?')));
   });
 
   test('branding automation and test harness avoid legacy hiddify fallbacks',

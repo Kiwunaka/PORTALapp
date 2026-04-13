@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:hiddify/core/app_info/app_info_provider.dart';
 import 'package:hiddify/core/widget/premium_surfaces.dart';
 import 'package:hiddify/features/common/nested_app_bar.dart';
 import 'package:hiddify/features/portal/data/portal_repository.dart';
@@ -15,6 +16,7 @@ class SupportPage extends HookConsumerWidget {
     final copy = PortalCopy.of(context);
     final experience = ref.watch(portalExperienceProvider);
     final config = ref.watch(portalPublicConfigProvider);
+    final appInfo = ref.watch(appInfoProvider).valueOrNull;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -28,17 +30,20 @@ class SupportPage extends HookConsumerWidget {
                 child: PortalAsyncBody(
                   value: experience,
                   builder: (context, portal) {
+                    final supportDiagnostics = buildPortalSupportDiagnostics(
+                      portal: portal,
+                      config: config,
+                      appInfo: appInfo,
+                    );
                     final diagnostics = buildPortalDiagnosticsText(
-                      accountId: portal.session.accountId,
-                      deviceName: portal.session.deviceName,
-                      planCode: portal.subscription.currentPlanCode,
+                      diagnostics: supportDiagnostics,
+                      isRussian: copy.isRussian,
                     );
                     final supportEmailUri = buildPortalSupportEmailUri(
                       contactEmail: config.contactEmail,
-                      accountId: portal.session.accountId,
-                      deviceName: portal.session.deviceName,
-                      planCode: portal.subscription.currentPlanCode,
+                      diagnostics: supportDiagnostics,
                       appLabel: config.brandName,
+                      isRussian: copy.isRussian,
                     );
 
                     return Column(
@@ -93,6 +98,19 @@ class SupportPage extends HookConsumerWidget {
                                     icon: const Icon(Icons.mail_outline),
                                     label: Text(copy.emailSupport),
                                   ),
+                                  if (supportDiagnostics.webappUrl.isNotEmpty)
+                                    OutlinedButton.icon(
+                                      onPressed: () => launchPortalLink(
+                                        context,
+                                        supportDiagnostics.webappUrl,
+                                      ),
+                                      icon: const Icon(Icons.open_in_browser),
+                                      label: Text(
+                                        copy.isRussian
+                                            ? 'Открыть веб-кабинет'
+                                            : 'Open web cabinet',
+                                      ),
+                                    ),
                                   OutlinedButton.icon(
                                     onPressed: () => copyPortalText(
                                       context,

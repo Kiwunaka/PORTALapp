@@ -42,7 +42,12 @@ class QuickSettingsModal extends HookConsumerWidget {
           ),
           ListTile(
             title: const Text('Routing preset'),
-            subtitle: Text(ref.watch(ConfigOptions.routingMode).present(t)),
+            subtitle: Text(
+              presentConsumerRoutingMode(
+                ref.watch(ConfigOptions.routingMode),
+                t,
+              ),
+            ),
             trailing: const Icon(FluentIcons.chevron_right_24_regular),
             onTap: () => const ConfigOptionsRoute().go(context),
           ),
