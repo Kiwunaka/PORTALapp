@@ -1,6 +1,6 @@
 # POKROV VPN v1 Product Spec
 
-Last updated: 2026-04-14
+Last updated: 2026-04-15
 
 ## Document Status
 
@@ -209,6 +209,14 @@ Release-facing packaging must still fail if legacy `hiddify` branding leaks into
 Brand source:
 
 - [logogo.png](C:/Users/kiwun/Documents/ai/VPN/external/logogo.png)
+- [logoclear.svg](C:/Users/kiwun/Documents/ai/VPN/logo/logoclear.svg)
+- [logowithtext.svg](C:/Users/kiwun/Documents/ai/VPN/logo/logowithtext.svg)
+
+Brand-source rule:
+
+- regenerate Android launcher, banner, splash, and other platform raster assets from the current raster master
+- regenerate Windows ICO, tray, favicon, and share-preview assets from the current release masters instead of treating older exports as independent truth
+- keep in-app and public wordmark rendering aligned with the current vector masters
 
 ## Release Continuity
 
@@ -232,6 +240,13 @@ Current user-facing download surfaces expose only:
 - install/docs fallback
 
 Treat `AAB`, `MSIX`, and portable `ZIP` as release/store/operator artifacts unless the public payload expands.
+
+Packaging reality:
+
+- raw Android release artifacts live under `external/client-fork/app/build/app/outputs/...`
+- raw Windows release artifacts live under `external/client-fork/app/build/windows/x64/runner/Release/...`
+- the canonical Windows `out/` bundle is created only by running `external/client-fork/app/scripts/package_windows.ps1` from the client repo root
+- raw local artifacts do not by themselves prove production signing, live deploy, or completed release handoff
 
 Because Android package identity and Windows app identity changed during the
 `POKROV VPN` migration, release continuity is:

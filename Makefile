@@ -84,7 +84,7 @@ prepare:
 	@echo    make macos-prepare
 	@echo    make ios-prepare
 
-windows-prepare: get gen translate windows-libs
+windows-prepare: windows-branding-assets get gen translate windows-libs
 	
 ios-prepare: get-geo-assets get gen translate ios-libs 
 	cd ios; pod repo update; pod install;echo "done ios prepare"
@@ -179,7 +179,10 @@ android-aab-release:
 	flutter build appbundle --target $(TARGET) $(BUILD_ARGS) --dart-define release=google-play
 	ls -R build/app/outputs
 
-windows-release:
+windows-branding-assets:
+	python windows/sync_branding_assets.py
+
+windows-release: windows-branding-assets
 	flutter_distributor package --flutter-build-args=verbose --platform windows --targets exe,msix $(DISTRIBUTOR_ARGS)
 
 linux-release: 

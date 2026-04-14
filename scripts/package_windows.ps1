@@ -7,8 +7,12 @@ $distDir = Join-Path $repoRoot "dist"
 $outDir = Join-Path $repoRoot "out"
 $portableStageDir = Join-Path $distDir "tmp\$appSlug"
 $releaseRunnerDir = Join-Path $repoRoot "build\windows\x64\runner\Release"
+$runnerExePath = Join-Path $releaseRunnerDir "POKROVVPN.exe"
 $msixConfigPath = Join-Path $repoRoot "windows\packaging\msix\make_config.yaml"
 $exeConfigPath = Join-Path $repoRoot "windows\packaging\exe\make_config.yaml"
+$brandingSourceIcon = (Resolve-Path (Join-Path $repoRoot "..\..\logogo.png")).Path
+$brandingSyncScript = Join-Path $repoRoot "windows\sync_branding_assets.py"
+$brandingAppIcon = Join-Path $repoRoot "windows\runner\resources\app_icon.ico"
 $builtMsixPath = Join-Path $releaseRunnerDir "pokrov-windows-setup-x64.msix"
 $canonicalExe = Join-Path $outDir "$appSlug-windows-setup-x64.exe"
 $canonicalMsix = Join-Path $outDir "$appSlug-windows-setup-x64.msix"
@@ -46,20 +50,49 @@ function Assert-CanonicalConfig {
     }
 }
 
-function Find-Artifact([string]$pattern, [string]$description) {
+function Find-Artifact([string[]]$patterns, [string]$description) {
     $candidate = Get-ChildItem -Recurse -File -Path $distDir |
-        Where-Object { $_.Name -like $pattern } |
+        Where-Object {
+            foreach ($pattern in $patterns) {
+                if ($_.Name -like $pattern) {
+                    return $true
+                }
+            }
+            return $false
+        } |
         Sort-Object LastWriteTime -Descending |
         Select-Object -First 1
 
     if (-not $candidate) {
-        throw "Unable to find $description artifact in dist matching '$pattern'."
+        throw "Unable to find $description artifact in dist matching '$($patterns -join "', '")'."
     }
 
     return $candidate
 }
 
+function Sync-WindowsBrandingAssets {
+    $pythonCommand = Get-Command python -ErrorAction Stop
+    & $pythonCommand.Source $brandingSyncScript
+    if ($LASTEXITCODE -ne 0) {
+        throw "Windows branding asset sync failed."
+    }
+}
+
+function Assert-ArtifactIsFresh([string]$artifactPath, [string]$description, [datetime]$referenceTimestampUtc) {
+    if (-not (Test-Path $artifactPath)) {
+        throw "$description artifact not found at $artifactPath"
+    }
+
+    $artifactTimestampUtc = (Get-Item $artifactPath).LastWriteTimeUtc
+    if ($artifactTimestampUtc -lt $referenceTimestampUtc) {
+        throw "$description artifact at $artifactPath is older than the refreshed Windows icon. Re-run the Windows release build before packaging."
+    }
+}
+
 Assert-CanonicalConfig
+Sync-WindowsBrandingAssets
+
+$brandingReferenceUtc = (Get-Item $brandingSourceIcon).LastWriteTimeUtc
 
 New-Item -ItemType Directory -Force -Path (Join-Path $distDir "tmp") | Out-Null
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
@@ -74,13 +107,16 @@ foreach ($artifact in @($canonicalExe, $canonicalMsix, $canonicalPortable)) {
     }
 }
 
-$setupCandidate = Find-Artifact -pattern "*pokrov*setup*.exe" -description "Windows setup"
+$setupCandidate = Find-Artifact -patterns @("*pokrov*setup*.exe", "*hiddify*setup*.exe") -description "Windows setup"
+Assert-ArtifactIsFresh -artifactPath $setupCandidate.FullName -description "Windows setup" -referenceTimestampUtc $brandingReferenceUtc
 Copy-Item $setupCandidate.FullName -Destination $canonicalExe -Force
 
 if (Test-Path $builtMsixPath) {
+    Assert-ArtifactIsFresh -artifactPath $builtMsixPath -description "Windows MSIX" -referenceTimestampUtc $brandingReferenceUtc
     Copy-Item $builtMsixPath -Destination $canonicalMsix -Force
 } else {
-    $msixCandidate = Find-Artifact -pattern "*.msix" -description "Windows MSIX"
+    $msixCandidate = Find-Artifact -patterns @("*.msix") -description "Windows MSIX"
+    Assert-ArtifactIsFresh -artifactPath $msixCandidate.FullName -description "Windows MSIX" -referenceTimestampUtc $brandingReferenceUtc
     Copy-Item $msixCandidate.FullName -Destination $canonicalMsix -Force
 }
 
@@ -120,6 +156,7 @@ Remove-Item -Path $msixZipPath -Force
 if (-not (Test-Path $releaseRunnerDir)) {
     throw "Windows runner release directory not found at $releaseRunnerDir"
 }
+Assert-ArtifactIsFresh -artifactPath $runnerExePath -description "Windows runner executable" -referenceTimestampUtc $brandingReferenceUtc
 
 xcopy $releaseRunnerDir $portableStageDir /E /H /C /I /Y | Out-Null
 xcopy ".github\help\mac-windows\*.url" $portableStageDir /E /H /C /I /Y | Out-Null

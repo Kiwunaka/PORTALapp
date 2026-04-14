@@ -12,8 +12,8 @@ msix_config:
   logo_path: windows\runner\resources\app_icon.ico
   capabilities: internetClient, internetClientServer, privateNetworkClientServer
   languages: en-us, zh-cn, zh-tw, tr-tr,fa-ir,ru-ru,pt-br,es-es
-  protocol_activation: pokrovvpn
-  execution_alias: pokrovvpn
+  protocol_activation: pokrov
+  execution_alias: pokrov
   certificate_path: windows\sign.pfx
   certificate_password: ""
   sign_msix: false

@@ -1,6 +1,6 @@
 # POKROV VPN Client Docs
 
-Last updated: 2026-04-14
+Last updated: 2026-04-15
 
 This folder contains living client-fork-specific documentation for `POKROV`.
 
@@ -39,9 +39,11 @@ For platform-wide truth, start at the root docs index:
 - Client docs must stay aligned with the platform canon on brand, account model, trial length, Telegram reward, and support entrypoints.
 - Client docs must treat browser email auth as additive to the app-first model, not as a replacement for the app or Telegram flows.
 - Client docs must treat browser email auth as operationally ready only when transactional sender identity and delivery-confirmation/webhook visibility are live.
+- Client docs must describe unavailable email delivery truthfully: if sender or webhook readiness is missing, browser email auth stays blocked or unavailable rather than "almost ready".
 - Client docs must treat visible product naming as `POKROV`; legacy `POKROV VPN` identifiers are compatibility-only.
 - Client docs must treat `Android + Windows` as the full public `v1` scope.
 - Client docs must treat `iOS` and `macOS` as readiness-only in this release wave unless a later canonical doc changes that status.
+- Client docs must use [external/logogo.png](C:/Users/kiwun/Documents/ai/VPN/external/logogo.png), [logo/logoclear.svg](C:/Users/kiwun/Documents/ai/VPN/logo/logoclear.svg), and [logo/logowithtext.svg](C:/Users/kiwun/Documents/ai/VPN/logo/logowithtext.svg) as the master brand assets for regenerated launcher, splash, tray, favicon, and share-preview outputs.
 - If a client doc conflicts with root canonical docs, update the client doc or explicitly mark the difference as planned work.
 - Client docs must not claim Android public-release readiness until release-build localhost/control-surface checks are complete.
 - Client docs must treat a local green `release_orchestrator.py --gates-only` snapshot as necessary but not sufficient; public release still needs live deploy/handoff truth and the required origin evidence.
