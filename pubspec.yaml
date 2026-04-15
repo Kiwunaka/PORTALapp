@@ -6,7 +6,7 @@ version: 0.9.0-beta+20508
 msix_config:
   display_name: POKROV
   publisher_display_name: POKROV
-  identity_name: Pokrov.Vpn
+  identity_name: pokrov
   msix_version: 2.5.8.0
   output_name: pokrov-windows-setup-x64
   logo_path: windows\runner\resources\app_icon.ico
@@ -17,7 +17,7 @@ msix_config:
   certificate_path: windows\sign.pfx
   certificate_password: ""
   sign_msix: false
-  publisher: CN=POKROV VPN
+  publisher: CN=POKROV
   install_certificate: false
   enable_at_startup: true
   startup_task:

@@ -1,4 +1,4 @@
-# POKROV VPN v1 Product Spec
+# POKROV v1 Product Spec
 
 Last updated: 2026-04-15
 
@@ -45,7 +45,7 @@ That browser email path is only trustworthy when transactional sender identity a
 - public `v1` scope remains `Android + Windows`
 - `Windows` can continue through the normal public release path when its gates are green
 - `Android` is release-blocked until a real release-build audit proves that local proxy, DNS, command, and admin/control listeners are not exposed without acceptable protection
-- as of `2026-04-13`, `python scripts/release_orchestrator.py --gates-only` is green for the documented repo/static/client gate pack, but final Android publication still requires a connected-device `android_localhost_audit.py` run against a release-installed build
+- as of `2026-04-15`, the documented full `python scripts/release_orchestrator.py --gates-only` success snapshot still remains the `2026-04-13` run, while the current repo-local portal/client regression pack is green again and Windows release packaging now targets the canonical `pokrov-*` artifact line
 - that local green gate snapshot does not yet prove live deploy, live node enablement, or separate `current-origin`, `brain-origin`, and `RU-origin` checks
 - when `release_gate_check.py` includes `android-apk` or `android-aab`, it must require `ANDROID_AUDIT_SERIAL` and treat emulator serials only as adb rehearsal, not as final sign-off
 - release builds must start from a clean `libcore` checkout pinned to the SHA recorded by the parent client repo; `python scripts/run_client_release_gate.py preflight` is the canonical repo-local proof for that condition
@@ -104,7 +104,7 @@ Public UX rules for that choice:
 
 Before the device receives a real subscription payload:
 
-- the onboarding card remains the primary `VPN` surface
+- the onboarding card remains the primary connection surface
 - `Locations` stays gated and must not show fake/demo countries
 - `Support` may prepare account or device context, but live ticket history appears only after a real linked session exists
 - `Telegram` remains an optional reward and recovery layer, not the first-use wall
@@ -196,6 +196,7 @@ Replace:
 - release asset names
 - visible `Hiddify` references in UI
 - canonical public URI scheme should be `pokrov`
+- Windows release candidates must resolve package identity, executable naming, installer naming, and protocol activation to `POKROV` / `pokrov`
 
 Tracked separately from public-v1 ship:
 
@@ -227,6 +228,7 @@ Canonical public release artifacts for this fork:
 - `pokrov-windows-setup-x64.exe`
 - `pokrov-windows-setup-x64.msix`
 - `pokrov-windows-portable-x64.zip`
+- WinGet package identifier: `Pokrov.Pokrov` for stable and `Pokrov.Pokrov.Beta` for the dev channel
 
 Public versioning rule:
 
@@ -246,6 +248,8 @@ Packaging reality:
 - raw Android release artifacts live under `external/client-fork/app/build/app/outputs/...`
 - raw Windows release artifacts live under `external/client-fork/app/build/windows/x64/runner/Release/...`
 - the canonical Windows `out/` bundle is created only by running `external/client-fork/app/scripts/package_windows.ps1` from the client repo root
+- after the final green rerun, retain `external/client-fork/app/out/` as the canonical packaged bundle and treat raw `build/` and `dist/` outputs as disposable local artifacts
+- Windows packaging must reject legacy `POKROV VPN`, `Pokrov.Vpn`, or `hiddify` residue in packaged `MSIX` identity fields and release-facing installer names
 - raw local artifacts do not by themselves prove production signing, live deploy, or completed release handoff
 
 Because Android package identity and Windows app identity changed during the

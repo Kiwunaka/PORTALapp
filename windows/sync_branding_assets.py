@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from io import BytesIO
 from pathlib import Path
 import sys
 
@@ -54,7 +55,16 @@ def main() -> int:
     target_icon.parent.mkdir(parents=True, exist_ok=True)
     with Image.open(source_icon) as image:
         icon_canvas = _prepare_icon_canvas(image)
-        icon_canvas.save(target_icon, format="ICO", sizes=ICON_SIZES)
+        rendered = BytesIO()
+        icon_canvas.save(rendered, format="ICO", sizes=ICON_SIZES)
+        rendered_bytes = rendered.getvalue()
+
+    current_bytes = target_icon.read_bytes() if target_icon.exists() else None
+    if current_bytes == rendered_bytes:
+        print(f"Windows icon already up to date at {target_icon}")
+        return 0
+
+    target_icon.write_bytes(rendered_bytes)
 
     print(f"Refreshed Windows icon from {source_icon} -> {target_icon}")
     return 0

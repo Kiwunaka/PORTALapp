@@ -14,15 +14,15 @@ Workflow: `.github/workflows/fork-android-windows-release.yml`
 
 ## Recommended repository variables (branding overrides)
 
-- `BRAND_NAME` (example: `POKROV VPN`)
+- `BRAND_NAME` (example: `POKROV`)
 - `ANDROID_APPLICATION_ID` (example: `space.pokrov.vpn`)
 - `ANDROID_NAMESPACE` (example: `com.hiddify.hiddify`)
 - `ANDROID_TEST_NAMESPACE` (example: `test.com.hiddify.hiddify`)
-- `URI_SCHEME` (example: `pokrovvpn`)
-- `WINDOWS_IDENTITY_NAME` (example: `Pokrov.Vpn`)
-- `WINDOWS_PUBLISHER_NAME` (example: `POKROV VPN`)
-- `WINDOWS_INSTALL_DIR` (example: `POKROV VPN`)
-- `WINDOWS_EXE_STEM` (example: `POKROVVPN`)
+- `URI_SCHEME` (example: `pokrov`)
+- `WINDOWS_IDENTITY_NAME` (example: `pokrov`)
+- `WINDOWS_PUBLISHER_NAME` (example: `POKROV`)
+- `WINDOWS_INSTALL_DIR` (example: `POKROV`)
+- `WINDOWS_EXE_STEM` (example: `POKROV`)
 - `BRAND_COPYRIGHT` (optional custom copyright line)
 
 ## Required for Play upload (optional)
@@ -52,4 +52,5 @@ Workflow: `.github/workflows/fork-android-windows-release.yml`
 
 Default artifact slug in this repo is `pokrov`.
 Default mirror path in this repo is `/var/www/downloads/pokrov`.
+Default WinGet package identifier in this repo is `Pokrov.Pokrov` and the dev channel publishes as `Pokrov.Pokrov.Beta`.
 Keep the Android namespace on the legacy `com.hiddify.hiddify` package unless you also migrate the Kotlin source tree under `android/app/src/main/kotlin`.

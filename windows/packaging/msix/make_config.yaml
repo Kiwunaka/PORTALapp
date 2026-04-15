@@ -1,6 +1,6 @@
 display_name: POKROV
 publisher_display_name: POKROV
-identity_name: Pokrov.Vpn
+identity_name: pokrov
 msix_version: 2.5.8.0
 logo_path: windows\runner\resources\app_icon.ico
 capabilities: internetClient, internetClientServer, privateNetworkClientServer
@@ -9,7 +9,7 @@ protocol_activation: pokrov
 execution_alias: pokrov
 certificate_path: windows\sign.pfx
 certificate_password: ""
-publisher: CN=POKROV VPN
+publisher: CN=POKROV
 install_certificate: "false"
 enable_at_startup: "true"
 startup_task:

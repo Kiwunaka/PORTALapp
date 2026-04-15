@@ -1,4 +1,4 @@
-# POKROV VPN Client Docs
+# POKROV Client Docs
 
 Last updated: 2026-04-15
 
@@ -32,7 +32,7 @@ For platform-wide truth, start at the root docs index:
 
 ### Implementation
 
-- [POKROV VPN Implementation Backlog](C:/Users/kiwun/Documents/ai/VPN/external/client-fork/app/docs/implementation/portal-vpn-backlog.md)
+- [POKROV Implementation Backlog](C:/Users/kiwun/Documents/ai/VPN/external/client-fork/app/docs/implementation/portal-vpn-backlog.md)
 
 ## Alignment Rules
 
@@ -41,6 +41,7 @@ For platform-wide truth, start at the root docs index:
 - Client docs must treat browser email auth as operationally ready only when transactional sender identity and delivery-confirmation/webhook visibility are live.
 - Client docs must describe unavailable email delivery truthfully: if sender or webhook readiness is missing, browser email auth stays blocked or unavailable rather than "almost ready".
 - Client docs must treat visible product naming as `POKROV`; legacy `POKROV VPN` identifiers are compatibility-only.
+- Client docs must treat Windows release identity, executable naming, and packaged artifact canon as end-to-end `POKROV` / `pokrov`.
 - Client docs must treat `Android + Windows` as the full public `v1` scope.
 - Client docs must treat `iOS` and `macOS` as readiness-only in this release wave unless a later canonical doc changes that status.
 - Client docs must use [external/logogo.png](C:/Users/kiwun/Documents/ai/VPN/external/logogo.png), [logo/logoclear.svg](C:/Users/kiwun/Documents/ai/VPN/logo/logoclear.svg), and [logo/logowithtext.svg](C:/Users/kiwun/Documents/ai/VPN/logo/logowithtext.svg) as the master brand assets for regenerated launcher, splash, tray, favicon, and share-preview outputs.
@@ -50,6 +51,7 @@ For platform-wide truth, start at the root docs index:
 - Client docs must not present RU-aware routing as fully shipped until the routing strategy layer, DNS split rules, and leak checks are actually verified.
 - Client docs must describe only the currently shipped routing modes `Full tunnel` and `All except RU`; keep `Blocked only` as planned work until it exists in code and passes release verification.
 - Client docs must distinguish current public download targets from release/store artifacts: app surfaces currently expose Android `Play` / `APK` / mirror and Windows `EXE` / mirror, while `AAB`, `MSIX`, and portable `ZIP` stay operator/store artifacts.
+- Client docs must treat `external/client-fork/app/out/` as the canonical packaged Windows bundle after a final green rerun and treat raw client `build/` and `dist/` outputs as disposable local artifacts.
 - Client docs must describe `pokrov://` as the canonical public URI scheme and `pokrovvpn://` only as hidden compatibility handling where removal is not yet feasible.
 - Client docs must describe the consumer onboarding choice `Optimize everything on this device` vs `Only selected apps` and treat split tunneling as a first-layer product feature.
 - Client docs must describe persisted split-tunnel state through backend-owned `route_mode`, `selected_apps`, `requires_elevated_privileges`, and mirrored `route_policy.*` fields instead of implying that the choice is local-only UI state.

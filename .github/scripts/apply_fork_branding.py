@@ -156,14 +156,14 @@ def main() -> int:
     )
     uri_scheme = _read_env("FORK_URI_SCHEME", "pokrov")
 
-    windows_identity_name = _read_env("FORK_WINDOWS_IDENTITY_NAME", "Pokrov.Vpn")
+    windows_identity_name = _read_env("FORK_WINDOWS_IDENTITY_NAME", "pokrov")
     windows_publisher_name = _read_env("FORK_WINDOWS_PUBLISHER_NAME", brand_name)
     windows_publisher_url = _read_env(
         "FORK_WINDOWS_PUBLISHER_URL",
         "https://pokrov.space/",
     )
     windows_install_dir = _read_env("FORK_WINDOWS_INSTALL_DIR", brand_name)
-    exe_stem = _read_env("FORK_WINDOWS_EXE_STEM", "POKROVVPN")
+    exe_stem = _read_env("FORK_WINDOWS_EXE_STEM", "POKROV")
     windows_output_base_file_name = _read_env(
         "FORK_WINDOWS_OUTPUT_BASE_FILE_NAME",
         "pokrov-windows-setup-x64",
@@ -257,9 +257,13 @@ def main() -> int:
                 _set_yaml_scalar(
                     _set_yaml_scalar(
                         _set_yaml_scalar(
-                            t,
-                            "display_name",
-                            brand_name,
+                            _set_yaml_scalar(
+                                t,
+                                "display_name",
+                                brand_name,
+                            ),
+                            "publisher",
+                            f"CN={windows_publisher_name}",
                         ),
                         "publisher_display_name",
                         windows_publisher_name,

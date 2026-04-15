@@ -1,12 +1,12 @@
-# POKROV VPN Implementation Backlog
+# POKROV Implementation Backlog
 
-Last updated: 2026-04-12
+Last updated: 2026-04-15
 
 ## Current status
 
 The app-first foundation and the consumer information architecture are now largely in place.
 
-As of `2026-04-12`, `python scripts/release_orchestrator.py --gates-only` is green for the documented repo/static/client gate pack.
+As of `2026-04-15`, the documented full `python scripts/release_orchestrator.py --gates-only` success snapshot remains the `2026-04-13` run, and the current repo-local `portal` client suite is green again after the latest support and premium-layout fixes.
 
 Already verified locally by the portal test pack:
 
@@ -43,13 +43,14 @@ Already verified locally by the portal test pack:
 
 ### Release branding and packaging
 
-- regenerate launcher/store assets from the final `POKROV VPN` logo set
-- replace inherited tray/package assets that can still surface legacy branding
-- build fresh release candidates for Android and Windows after asset refresh
+- keep regenerated launcher, tray, and package assets aligned with the final `POKROV` brand set
+- keep Windows package identity, executable naming, installer naming, and release artifacts on the canonical `POKROV` / `pokrov` line
+- build fresh release candidates for Android and Windows after the latest branding sync
 - sign the final Android and Windows artifacts for public distribution
 - keep runtime release handoff aligned with the currently exposed public targets: Android `Play` / `APK` / mirror and Windows `EXE` / mirror
 - keep `AAB`, `MSIX`, and portable `ZIP` aligned as store/operator artifacts unless the public payload expands
 - updater and source-code metadata no longer fall back to a personal repository URL in non-release builds
+- after the final green rerun, retain `external/client-fork/app/out/` as the canonical packaged Windows bundle and treat raw `build/` and `dist/` outputs as disposable local artifacts
 
 ### User-facing wording cleanup
 

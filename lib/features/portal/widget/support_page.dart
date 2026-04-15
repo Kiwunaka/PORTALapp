@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:hiddify/core/app_info/app_info_provider.dart';
 import 'package:hiddify/core/widget/premium_surfaces.dart';
 import 'package:hiddify/features/common/nested_app_bar.dart';
 import 'package:hiddify/features/portal/config/portal_public_config.dart';
@@ -17,6 +18,7 @@ class SupportPage extends HookConsumerWidget {
     final copy = PortalCopy.of(context);
     final experience = ref.watch(portalExperienceProvider);
     final config = ref.watch(portalPublicConfigProvider);
+    final appInfo = ref.watch(appInfoProvider).valueOrNull;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -38,6 +40,7 @@ class SupportPage extends HookConsumerWidget {
                             buildPortalSupportDiagnostics(
                           portal: portal,
                           config: config,
+                          appInfo: appInfo,
                         );
                         final diagnostics = buildPortalDiagnosticsText(
                           diagnostics: supportDiagnostics,

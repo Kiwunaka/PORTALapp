@@ -143,6 +143,7 @@ Shared-surface config note:
 - public routing defaults should stay aligned with shared facts: `All except RU`, rollout-selected transport, and `ru_direct_split`
 - `legacy_reality_fallback` remains the public baseline until canary cohorts are explicitly promoted to `grpc_443_primary`
 - support diagnostics should include routing mode, DNS policy, transport profile, ruleset version, app version, linked Telegram state, and `support_recovery_order`
+- the support surface should read current app metadata when available so diagnostics include the same public beta version line users and operators see elsewhere
 - normal consumer labels should avoid raw `host:port`, public IP, and raw subscription URLs after silent import succeeds
 - first-layer consumer surfaces should avoid raw subscription copy, edit, regenerate, or share actions
 - `pokrov://` is the canonical public app-link scheme; `pokrovvpn://` remains hidden compatibility-only where import continuity still requires it
@@ -211,6 +212,8 @@ Client UX rule:
 - test/build modes of `python scripts/run_client_release_gate.py` now auto-bootstrap missing generated Dart assets with `flutter pub get` and `flutter pub run build_runner build --delete-conflicting-outputs`, so clean checkouts can rebuild the ignored codegen surface before Flutter tests begin
 - raw Android artifacts live under `build/app/outputs/...`, and raw Windows artifacts live under `build/windows/x64/runner/Release/...`
 - client `out/` becomes the canonical packaged Windows bundle only after `scripts/package_windows.ps1` is run from the client repo root
+- `scripts/package_windows.ps1` canonicalizes the Windows release bundle around `pokrov-windows-setup-x64.exe`, `pokrov-windows-setup-x64.msix`, and `pokrov-windows-portable-x64.zip`
+- after the final green rerun, retain `out/` as the canonical packaged bundle and treat raw `build/` and `dist/` outputs as disposable local artifacts
 - `AAB`, `MSIX`, and portable `ZIP` remain release/store artifacts rather than first-layer client download targets today
 - when `release_gate_check.py` includes Android build gates, it must also include `python scripts/android_localhost_audit.py` against a release-installed build on a physical device via `ANDROID_AUDIT_SERIAL`
 - the latest local green `python scripts/release_orchestrator.py --gates-only` snapshot is necessary but not sufficient; Android publication still waits for production signing, the physical-device localhost audit, and separate `current-origin`, `brain-origin`, and `RU-origin` evidence in the release handoff

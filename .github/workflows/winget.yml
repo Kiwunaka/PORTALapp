@@ -4,7 +4,7 @@ on:
     types: [released]
 
 env:
-    IDENTIFIER: ${{ endsWith(github.event.release.tag_name, 'dev') && 'Pokrov.Vpn.Beta' || 'Pokrov.Vpn' }}
+    IDENTIFIER: ${{ endsWith(github.event.release.tag_name, 'dev') && 'Pokrov.Pokrov.Beta' || 'Pokrov.Pokrov' }}
 
 jobs:
   publish:

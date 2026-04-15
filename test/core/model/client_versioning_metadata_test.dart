@@ -41,21 +41,20 @@ void main() {
 
     expect(msixConfig, contains('display_name: POKROV'));
     expect(msixConfig, contains('publisher_display_name: POKROV'));
+    expect(msixConfig, contains('identity_name: pokrov'));
     expect(msixConfig, contains('msix_version: 2.5.8.0'));
-    expect(msixConfig, contains('protocol_activation: pokrovvpn'));
-    expect(msixConfig, contains('execution_alias: pokrovvpn'));
-    expect(msixConfig, contains('publisher: CN=POKROV VPN'));
+    expect(msixConfig, contains('protocol_activation: pokrov'));
+    expect(msixConfig, contains('execution_alias: pokrov'));
+    expect(msixConfig, contains('publisher: CN=POKROV'));
 
     expect(runnerResource, contains('VALUE "CompanyName", "POKROV"'));
     expect(runnerResource, contains('VALUE "FileDescription", "POKROV"'));
-    expect(
-        runnerResource, contains('VALUE "OriginalFilename", "POKROVVPN.exe"'));
+    expect(runnerResource, contains('VALUE "OriginalFilename", "POKROV.exe"'));
     expect(runnerResource, contains('VALUE "ProductName", "POKROV"'));
 
     expect(runnerMain, contains('FindWindowA(NULL, "POKROV")'));
-    expect(runnerMain, contains('FindWindowA(NULL, "POKROV VPN")'));
     expect(runnerMain, contains('window.SendAppLinkToInstance(L"POKROV")'));
-    expect(runnerMain, contains('window.SendAppLinkToInstance(L"POKROV VPN")'));
+    expect(runnerMain, isNot(contains('POKROV VPN')));
     expect(runnerMain, contains('window.Create(L"POKROV"'));
   });
 }

@@ -1,21 +1,21 @@
 # Fork Cleanup Tracker
 
-Last updated: 2026-04-12
+Last updated: 2026-04-15
 
 ## Goal
 
-Track the remaining brand-migration work for `POKROV VPN` without accidentally destabilizing the shipping client fork.
+Track the remaining brand-migration work for `POKROV` without accidentally destabilizing the shipping client fork.
 
 ## Branding
 
 | Area | Status | Notes |
 |---|---|---|
-| App display name | Mostly done | Runtime app surfaces ship as `POKROV VPN`; keep checking installer/store metadata and release payloads |
-| Launcher icon | Pending | Must switch to final logo assets for public release |
-| Splash assets | In progress | Runtime splash is aligned, launcher/store derivatives still need regeneration |
-| Tray icons | Pending | Still depend on inherited asset pipeline |
-| App update metadata | Done | Appcast, web manifest, release message, store descriptions, and release-url fallbacks no longer point to the personal repo and now use `POKROV VPN` branding |
-| README and docs branding | Mostly done | Canonical docs and release handoff readmes are aligned; stale supporting history files may still exist |
+| App display name | Done | Runtime app surfaces target `POKROV`; keep `POKROV VPN` only in explicitly documented compatibility-only cases |
+| Launcher icon | Mostly done | Current branding sync regenerates release-facing launcher assets from the canonical masters; verify again on signed artifacts |
+| Splash assets | Mostly done | Runtime splash and regenerated derivatives follow the current brand masters; recheck signed builds only |
+| Tray icons | Mostly done | Current branding sync updates the Windows icon pipeline; keep signed-build verification in the release handoff |
+| App update metadata | Done | Appcast, web manifest, release message, store descriptions, and release-url fallbacks no longer point to the personal repo and now use `POKROV` branding |
+| README and docs branding | In progress | Canonical docs are aligned; keep cleaning stale support notes and workflow examples that still suggest legacy values |
 
 ## Remaining visible Hiddify references
 
@@ -23,7 +23,7 @@ Track the remaining brand-migration work for `POKROV VPN` without accidentally d
 |---|---|---|
 | Supporting docs and inherited history files | Pending | Clean up only what can confuse public release or operator handoff |
 | Binary names such as `HiddifyCli.exe` | Done | `libcore`, build scripts, and Windows release bundle now use `POKROVCli.exe` only |
-| Advanced labels and old settings wording | Pending | Must be rewritten for consumer UX where visible to end users |
+| Advanced labels and old settings wording | In progress | Continue rewriting visible inherited power-user wording for the consumer UX where it still leaks through |
 | Android namespace / test namespace | Deferred | `com.hiddify.hiddify` and `test.com.hiddify.hiddify` stay until the package tree is migrated as a dedicated refactor |
 | Internal package name / imports | Deferred | `pubspec name: hiddify` and `package:hiddify/...` are internal refactor debt, not a last-minute public-v1 rename |
 
@@ -39,7 +39,7 @@ Track the remaining brand-migration work for `POKROV VPN` without accidentally d
 
 ## Product decisions already locked
 
-- Product name: `POKROV VPN`
+- Product name: `POKROV`
 - Trial: `5 days`
 - Telegram reward: `+10 days`
 - Product direction: `consumer-first`
@@ -49,8 +49,8 @@ Track the remaining brand-migration work for `POKROV VPN` without accidentally d
 
 ## Immediate implementation priorities
 
-1. Regenerate launcher, tray, and store-facing assets from the final `POKROV VPN` brand set.
-2. Run the connected-device Android localhost audit against a release-installed build before public Android publication.
+1. Run the connected-device Android localhost audit against a release-installed build before public Android publication.
+2. Sign and verify the final Android and Windows release artifacts against the current `POKROV` branding and runtime link handoff.
 3. Finish visible advanced-surface wording cleanup.
 4. Recheck runtime support, reward, and profile flows in signed release-mode builds.
 5. Keep internal package/import and Android namespace debt as a separate coordinated refactor instead of a last-minute public rename.

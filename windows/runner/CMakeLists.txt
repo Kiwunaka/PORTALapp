@@ -16,6 +16,15 @@ add_executable(${BINARY_NAME} WIN32
   "runner.exe.manifest"
 )
 
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+add_custom_command(
+  TARGET ${BINARY_NAME} PRE_BUILD
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_SOURCE_DIR}/sync_branding_assets.py"
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+  COMMENT "Refreshing Windows branding assets"
+  VERBATIM
+)
+
 # Apply the standard set of build settings. This can be removed for applications
 # that need different build settings.
 apply_standard_settings(${BINARY_NAME})

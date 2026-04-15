@@ -205,7 +205,7 @@ void main() {
       windowsStoreReleaseWorkflow,
       contains("startsWith(github.event.release.tag_name, 'v')"),
     );
-    expect(wingetWorkflow, contains('Pokrov.Vpn'));
+    expect(wingetWorkflow, contains('Pokrov.Pokrov'));
     expect(wingetWorkflow, isNot(contains('Hiddify.Next')));
     expect(
       legacyBuildWorkflow,
@@ -310,6 +310,8 @@ void main() {
 
     expect(msixConfig, contains('certificate_password: ""'));
     expect(msixConfig, isNot(contains('portalvpn-dev')));
+    expect(msixConfig, contains('identity_name: pokrov'));
+    expect(msixConfig, contains('publisher: CN=POKROV'));
     expect(exeConfig, contains('publisher_url: https://pokrov.space/'));
     expect(
       exeConfig,
@@ -318,6 +320,8 @@ void main() {
     expect(innoTemplate, isNot(contains('HiddifyTunnelService')));
     expect(packageScript, isNot(contains('HiddifyCli.exe')));
     expect(packageScript, contains('*pokrov*setup*.exe'));
+    expect(packageScript, contains('flutter_distributor package'));
+    expect(packageScript, contains('MakeAppx.exe'));
     expect(packageScript, contains('Legacy Windows residue detected'));
   });
 

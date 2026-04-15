@@ -56,7 +56,7 @@ void main() {
     expect(find.text('Android device\nAccount acc_1'), findsOneWidget);
     expect(find.text('Recent requests'), findsOneWidget);
     expect(find.text('Continue in web cabinet'), findsOneWidget);
-    expect(find.text('Open Telegram fallback'), findsOneWidget);
+    expect(find.text('Open Telegram support'), findsOneWidget);
     expect(find.text('Email support'), findsOneWidget);
     expect(find.text('Copy diagnostics'), findsOneWidget);
     expect(find.text('Chat with support now'), findsNothing);
