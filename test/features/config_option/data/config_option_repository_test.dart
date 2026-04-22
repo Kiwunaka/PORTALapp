@@ -24,7 +24,7 @@ void main() {
           await container.read(ConfigOptions.singboxConfigOptions.future);
 
       expect(
-          container.read(ConfigOptions.routingMode), RoutingMode.allExceptRu);
+          container.read(ConfigOptions.routingMode), RoutingMode.allExceptRu,);
       expect(
         container.read(ConfigOptions.remoteDnsAddress),
         'https://1.1.1.1/dns-query',

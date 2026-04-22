@@ -9,11 +9,10 @@ import 'package:http/testing.dart';
 
 class _MemoryPortalSessionStore implements PortalSessionStore {
   _MemoryPortalSessionStore({
-    this.installId = 'install-123',
     this.sessionToken = '',
   });
 
-  final String installId;
+  final String installId = 'install-123';
   final String sessionToken;
 
   @override

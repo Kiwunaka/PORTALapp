@@ -20,7 +20,7 @@ import 'package:hiddify/utils/utils.dart';
 
 part 'routes.g.dart';
 
-final GlobalKey<NavigatorState>? _dynamicRootKey =
+GlobalKey<NavigatorState>? get _dynamicRootKey =>
     useMobileRouter ? rootNavigatorKey : null;
 
 @TypedShellRoute<MobileWrapperRoute>(
@@ -162,7 +162,7 @@ class IntroRoute extends GoRouteData {
 
   @override
   Page<void> buildPage(BuildContext context, GoRouterState state) {
-    return MaterialPage(
+    return const MaterialPage(
       fullscreenDialog: true,
       name: name,
       child: IntroPage(),
@@ -409,6 +409,7 @@ class ProfileRoute extends GoRouteData {
 
 @Deprecated('Use LocationsRoute instead.')
 class ProxiesRoute {
+  @Deprecated('Use LocationsRoute instead.')
   const ProxiesRoute();
 
   static const name = LocationsRoute.name;
@@ -428,6 +429,7 @@ class ProxiesRoute {
 
 @Deprecated('Use DevicesRoute instead.')
 class ConfigOptionsRoute {
+  @Deprecated('Use DevicesRoute instead.')
   const ConfigOptionsRoute({this.section});
 
   final String? section;
@@ -449,6 +451,7 @@ class ConfigOptionsRoute {
 
 @Deprecated('Use SupportRoute instead.')
 class LogsOverviewRoute {
+  @Deprecated('Use SupportRoute instead.')
   const LogsOverviewRoute();
 
   static const name = SupportRoute.name;
@@ -468,6 +471,7 @@ class LogsOverviewRoute {
 
 @Deprecated('Use ProfileRoute instead.')
 class AboutRoute {
+  @Deprecated('Use ProfileRoute instead.')
   const AboutRoute();
 
   static const name = ProfileRoute.name;

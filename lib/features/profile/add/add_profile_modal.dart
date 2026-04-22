@@ -1,4 +1,3 @@
-import 'package:combine/combine.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,8 +11,8 @@ import 'package:hiddify/core/router/router.dart';
 import 'package:hiddify/features/common/qr_code_scanner_screen.dart';
 import 'package:hiddify/features/config_option/data/config_option_repository.dart';
 import 'package:hiddify/features/config_option/notifier/warp_option_notifier.dart';
-import 'package:hiddify/features/profile/add/warp_profile_defaults.dart';
 import 'package:hiddify/features/config_option/overview/warp_options_widgets.dart';
+import 'package:hiddify/features/profile/add/warp_profile_defaults.dart';
 import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -128,7 +127,7 @@ class AddProfileModal extends HookConsumerWidget {
                             size: buttonWidth,
                             onTap: () async {
                               final cr =
-                                  await QRCodeScannerScreen().open(context);
+                                  await const QRCodeScannerScreen().open(context);
 
                               if (cr == null) return;
                               if (addProfileState.isLoading) return;
@@ -195,7 +194,7 @@ class AddProfileModal extends HookConsumerWidget {
                         ),
                         if (!PlatformUtils.isDesktop)
                           const SizedBox(
-                              height: 16), // Spacing between the buttons
+                              height: 16,), // Spacing between the buttons
                         if (!PlatformUtils.isDesktop)
                           Semantics(
                             button: true,
@@ -253,10 +252,10 @@ class AddProfileModal extends HookConsumerWidget {
   }
 
   Future<void> addProfileModal(BuildContext context, WidgetRef ref) async {
-    final _prefs = ref.read(sharedPreferencesProvider).requireValue;
-    final _warp = ref.read(warpOptionNotifierProvider.notifier);
-    final _profile = ref.read(addProfileProvider.notifier);
-    final consent = (_prefs.getBool(warpConsentGiven) ?? false);
+    final prefs = ref.read(sharedPreferencesProvider).requireValue;
+    final warp = ref.read(warpOptionNotifierProvider.notifier);
+    final profile = ref.read(addProfileProvider.notifier);
+    final consent = prefs.getBool(warpConsentGiven) ?? false;
     final region = ref.read(ConfigOptions.region.notifier).raw();
     context.pop();
 
@@ -271,11 +270,11 @@ class AddProfileModal extends HookConsumerWidget {
 
       if (agreed != true) return;
     }
-    await _prefs.setBool(warpConsentGiven, true);
+    await prefs.setBool(warpConsentGiven, true);
     var toast = notification.showInfoToast(t.profile.add.addingWarpMsg,
-        duration: const Duration(milliseconds: 100));
+        duration: const Duration(milliseconds: 100),);
     toast?.pause();
-    await _warp.generateWarpConfig();
+    await warp.generateWarpConfig();
     toast?.start();
 
     // final accountId = _prefs.getString("warp2-account-id");
@@ -284,15 +283,15 @@ class AddProfileModal extends HookConsumerWidget {
 
     // if (!hasWarp2Config || true) {
     toast = notification.showInfoToast(t.profile.add.addingWarpMsg,
-        duration: const Duration(milliseconds: 100));
+        duration: const Duration(milliseconds: 100),);
     toast?.pause();
-    await _warp.generateWarp2Config();
+    await warp.generateWarp2Config();
     toast?.start();
     // }
     if (region == "cn") {
-      await _profile.add(defaultCnWarpProfileContent);
+      await profile.add(defaultCnWarpProfileContent);
     } else {
-      await _profile.add(
+      await profile.add(
         defaultWarpProfileUrl.isNotEmpty
             ? defaultWarpProfileUrl
             : defaultWarpProfileContent,

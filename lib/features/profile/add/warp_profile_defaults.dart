@@ -1,7 +1,6 @@
 const defaultWarpProfileName = 'POKROV WARP';
 const defaultWarpProfileUrl = String.fromEnvironment(
   'PORTAL_WARP_DEFAULTS_URL',
-  defaultValue: '',
 );
 const defaultWarpProfileContent = '''
 //profile-title: base64:UE9LUk9WIFdBUlA=

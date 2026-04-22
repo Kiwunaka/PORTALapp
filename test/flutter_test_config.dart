@@ -40,12 +40,17 @@ File? _findSqliteDll() {
     }
   }
 
-  try {
-    return projectRoot
-        .listSync(recursive: true, followLinks: false)
-        .whereType<File>()
-        .firstWhere((file) => file.path.toLowerCase().endsWith('${Platform.pathSeparator}sqlite3.dll'));
-  } on StateError {
-    return null;
+  for (final entity
+      in projectRoot.listSync(recursive: true, followLinks: false)) {
+    if (entity is! File) {
+      continue;
+    }
+    if (entity.path.toLowerCase().endsWith(
+      '${Platform.pathSeparator}sqlite3.dll',
+    )) {
+      return entity;
+    }
   }
+
+  return null;
 }

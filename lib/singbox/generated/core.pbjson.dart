@@ -4,6 +4,7 @@
 //
 // @dart = 2.12
 
+
 // ignore_for_file: annotate_overrides, camel_case_types, comment_references
 // ignore_for_file: constant_identifier_names, library_prefixes
 // ignore_for_file: non_constant_identifier_names, prefer_final_fields
@@ -74,4 +75,5 @@ const GenerateConfigResponse$json = {
 final $typed_data.Uint8List generateConfigResponseDescriptor = $convert.base64Decode(
     'ChZHZW5lcmF0ZUNvbmZpZ1Jlc3BvbnNlEhYKBmNvbmZpZxgBIAEoCVIGY29uZmlnEhkKBWVycm'
     '9yGAIgASgJSABSBWVycm9yiAEBQggKBl9lcnJvcg==');
+
 

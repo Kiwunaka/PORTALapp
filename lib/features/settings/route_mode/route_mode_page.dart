@@ -19,7 +19,6 @@ Future<void> showRouteModePage(
   bool requiredSetup = false,
 }) async {
   final navigatorContext = rootNavigatorKey.currentContext ?? context;
-  await Future<void>.delayed(Duration.zero);
   final router = GoRouter.maybeOf(navigatorContext);
   if (router != null) {
     final location = Uri(
@@ -508,7 +507,7 @@ class _RouteModeCopy {
 
   final bool isRussian;
 
-  static _RouteModeCopy of(BuildContext context) {
+  factory _RouteModeCopy.of(BuildContext context) {
     final code = Localizations.localeOf(context).languageCode.toLowerCase();
     return _RouteModeCopy._(code.startsWith('ru'));
   }

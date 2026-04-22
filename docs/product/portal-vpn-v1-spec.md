@@ -1,6 +1,6 @@
 # POKROV v1 Product Spec
 
-Last updated: 2026-04-15
+Last updated: 2026-04-18
 
 ## Document Status
 
@@ -8,9 +8,16 @@ This file is the living client product spec for `POKROV`.
 
 ## Summary
 
-`POKROV` is a `consumer-first`, `app-first` connectivity application for `Android` and `Windows`.
+`POKROV` is a `consumer-first`, `app-first` connectivity application with a
+public client target across `Android`, `iOS`, `macOS`, and `Windows`.
 
-`iOS` and `macOS` are not part of the full public `v1` promise. In this release wave they stay in readiness, packaging, and signing-preparation status only.
+Current delivery is intentionally split into two tracks:
+
+1. `automatic activation first` for managed app-first delivery, currently
+   strongest on `Android + Windows`
+2. `key-based bridge` for redeem, recovery, and compatibility flows kept
+   coherent across all four target platforms while backend and public-surface
+   work catches up
 
 The target journey is:
 
@@ -30,19 +37,23 @@ That browser email path is only trustworthy when transactional sender identity a
 - legacy client identifier: `POKROV VPN` only where compatibility removal is not yet feasible
 - UX direction: `consumer-first`
 - account model: `app-first`
-- full public `v1` scope: `Android + Windows`
-- Apple scope in this wave: readiness only
+- public client target: `Android + iOS + macOS + Windows`
+- automatic activation first track: `Android + Windows`
+- key-based bridge track: `Android + iOS + macOS + Windows`
 - default runtime core: `sing-box`
 - `xray` support: advanced compatibility fallback only
 - free trial: `5 days`
 - Telegram reward: `+10 days`
+- post-premium free tier: `5 GB / 30 days / 1 device` on `NL-free`
 - public user-facing version line: `0.x.x-beta`
 - recommended public routing mode: `All except RU`
 - public routing mode set: `All except RU` and `Full tunnel`
 
 ## Release Gate Reality
 
-- public `v1` scope remains `Android + Windows`
+- current direct public managed-activation and distribution scope remains
+  `Android + Windows`, even though the bridge target now spans all four
+  platforms
 - `Windows` can continue through the normal public release path when its gates are green
 - `Android` is release-blocked until a real release-build audit proves that local proxy, DNS, command, and admin/control listeners are not exposed without acceptable protection
 - as of `2026-04-15`, the documented full `python scripts/release_orchestrator.py --gates-only` success snapshot still remains the `2026-04-13` run, while the current repo-local portal/client regression pack is green again and Windows release packaging now targets the canonical `pokrov-*` artifact line
@@ -69,6 +80,13 @@ The app should not ask for:
 - subscription URLs
 - Telegram login
 - manual import as the primary path
+
+Secondary bridge rule:
+
+- redeem and access-key delivery remain allowed as compatibility and recovery
+  entry points
+- those bridge paths must not displace the automatic app-first activation story
+  on surfaces where managed activation is ready
 
 ### After trial activation
 
@@ -109,6 +127,42 @@ Before the device receives a real subscription payload:
 - `Support` may prepare account or device context, but live ticket history appears only after a real linked session exists
 - `Telegram` remains an optional reward and recovery layer, not the first-use wall
 - the premium shell, onboarding card, and portal tabs ship with complete RU copy rather than a mixed RU/EN surface
+
+### Two-track activation and delivery
+
+The client bridge must keep two truths visible at the same time:
+
+- `automatic activation first`: the app silently provisions managed access when
+  the backend can complete the app-first flow
+- `key-based bridge`: redeem and access-key delivery remain a compatible backup
+  for bridge, recovery, and unfinished-platform cases
+
+Client rules for those tracks:
+
+- automatic activation success stays the preferred outcome and should remain as
+  quiet as possible
+- if managed provisioning falls back to key-based delivery, the client should
+  still treat that as a successful activation and use calm fallback messaging
+  instead of a blocking failure state
+- when the app must import a connection link, it should prefer the nested
+  app-first `subscription_url` fields from `access`, `provisioning`, and
+  `session`; the client still accepts an older root-level `subscription_url`
+  only as compatibility input, but the current platform no longer emits it
+- the client must not promise a finished first-layer redeem backend contract
+  until that contract is actually shipped
+- Apple-facing bridge surfaces may rely on install help, compatible key-based
+  delivery, and later packaging work before full managed activation is ready
+- subscription and renewal surfaces should present three clear continuation
+  choices without promoting raw subscription links:
+  browser upgrade, community `+10 days`, and the compatible redeem/access-key
+  bridge flow
+- current route surfaces may expose a sanitized transport hint derived from the
+  managed manifest and client policy
+- when the backend sends `location_variants` for a location, the client may
+  render grouped consumer-safe transport rows in the prescribed public order
+  without exposing raw links or low-level transport toggles
+- if `location_variants` is absent, the client must stay on the simpler
+  location list plus current-route transport hint instead of inventing a matrix
 
 ### Renewal and purchase
 
@@ -241,6 +295,13 @@ Current user-facing download surfaces expose only:
 - Windows `EXE` / mirror URL
 - install/docs fallback
 
+Apple target note:
+
+- `iOS` and `macOS` stay part of the public client target for bridge and
+  redeem/key delivery planning
+- direct public Apple artifact distribution and managed activation still require
+  later packaging, signing, and backend/runtime completion
+
 Treat `AAB`, `MSIX`, and portable `ZIP` as release/store/operator artifacts unless the public payload expands.
 
 Packaging reality:
@@ -272,11 +333,18 @@ Android packaging note:
 In scope:
 
 - app-first trial activation
+- two-track client strategy with automatic activation first plus key-based
+  bridge compatibility
+- redeem/access-key scaffolding and calm fallback messaging that do not invent
+  unfinished backend behavior
 - silent profile provisioning
 - quick connect UX
 - first-run route-mode onboarding with `Optimize everything on this device` and `Only selected apps`
 - smart-connect shortlist and RTT-based auto-select within the existing pool rules
 - locations list
+- sanitized current-route transport hint on auto-select and locations surfaces
+- grouped location transport matrix rows when the backend provides
+  `location_variants`
 - devices management
 - profile and renewal
 - in-app support
@@ -297,8 +365,9 @@ Out of scope:
 - manual config import as the primary onboarding path
 - system-proxy-first or service-mode-first onboarding for normal users
 - public `Blocked only` preset until the rule layer, geo assets, and DNS behavior are actually implemented
-- public iOS App Store launch
-- public macOS distribution promise
+- finished first-layer redeem backend contract before that API is ready
+- public iOS App Store launch with full managed activation
+- public macOS distribution promise with full managed activation
 
 ## Routing And DNS Direction
 

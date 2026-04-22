@@ -3,6 +3,7 @@ import 'package:gap/gap.dart';
 import 'package:hiddify/core/router/router.dart';
 import 'package:hiddify/core/widget/premium_surfaces.dart';
 import 'package:hiddify/features/common/nested_app_bar.dart';
+import 'package:hiddify/features/portal/config/portal_client_strategy.dart';
 import 'package:hiddify/features/portal/data/portal_repository.dart';
 import 'package:hiddify/features/portal/model/portal_models.dart';
 import 'package:hiddify/features/portal/widget/portal_copy.dart';
@@ -38,6 +39,8 @@ class LocationsPage extends HookConsumerWidget {
                     }
 
                     final primary = _primaryLocation(portal);
+                    final transportVariant =
+                        resolvePortalTransportVariant(portal);
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -72,6 +75,22 @@ class LocationsPage extends HookConsumerWidget {
                                       : Icons.auto_awesome_rounded,
                                 ),
                               ),
+                              if (transportVariant != null) ...[
+                                const Gap(12),
+                                Text(
+                                  copy.transportVariantBadge(
+                                    transportVariant.badgeLabel,
+                                  ),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant,
+                                      ),
+                                ),
+                              ],
                             ],
                           ),
                         ),
@@ -79,35 +98,9 @@ class LocationsPage extends HookConsumerWidget {
                         ...portal.locations.map(
                           (location) => Padding(
                             padding: const EdgeInsets.only(bottom: 12),
-                            child: PortalSectionCard(
-                              tone: location.isActive
-                                  ? PortalSectionTone.accent
-                                  : PortalSectionTone.neutral,
-                              child: PortalListRow(
-                                title: copy.localizeServerText(location.title),
-                                subtitle: copy.localizeServerText(
-                                  location.subtitle,
-                                ),
-                                leading: PremiumIconOrb(
-                                  icon: location.isActive
-                                      ? Icons.radio_button_checked_rounded
-                                      : Icons.radio_button_off_rounded,
-                                  size: 46,
-                                  accent: location.isActive
-                                      ? Theme.of(context).colorScheme.primary
-                                      : Theme.of(context)
-                                          .colorScheme
-                                          .onSurfaceVariant,
-                                ),
-                                trailing: PortalStatusBadge(
-                                  label: location.isActive
-                                      ? copy.selected
-                                      : copy.available,
-                                  icon: location.isActive
-                                      ? Icons.check_rounded
-                                      : Icons.place_outlined,
-                                ),
-                              ),
+                            child: _LocationCard(
+                              location: location,
+                              copy: copy,
                             ),
                           ),
                         ),
@@ -119,6 +112,136 @@ class LocationsPage extends HookConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _LocationCard extends StatelessWidget {
+  const _LocationCard({
+    required this.location,
+    required this.copy,
+  });
+
+  final LocationRecord location;
+  final PortalCopy copy;
+
+  @override
+  Widget build(BuildContext context) {
+    final tone = location.isActive
+        ? PortalSectionTone.accent
+        : PortalSectionTone.neutral;
+
+    if (location.variants.isEmpty) {
+      return PortalSectionCard(
+        tone: tone,
+        child: PortalListRow(
+          title: copy.localizeServerText(location.title),
+          subtitle: copy.localizeServerText(location.subtitle),
+          leading: _LocationIcon(location: location),
+          trailing: _LocationBadge(location: location, copy: copy),
+        ),
+      );
+    }
+
+    return PortalSectionCard(
+      tone: tone,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          PortalListRow(
+            title: copy.localizeServerText(location.title),
+            subtitle: copy.localizeServerText(location.subtitle),
+            leading: _LocationIcon(location: location),
+            trailing: _LocationBadge(location: location, copy: copy),
+          ),
+          const Gap(14),
+          ..._buildVariantRows(context),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildVariantRows(BuildContext context) {
+    final rows = <Widget>[];
+    for (var index = 0; index < location.variants.length; index++) {
+      if (index > 0) rows.add(const Gap(10));
+      rows.add(
+        _LocationVariantRow(
+          variant: location.variants[index],
+          copy: copy,
+        ),
+      );
+    }
+    return rows;
+  }
+}
+
+class _LocationIcon extends StatelessWidget {
+  const _LocationIcon({required this.location});
+
+  final LocationRecord location;
+
+  @override
+  Widget build(BuildContext context) {
+    return PremiumIconOrb(
+      icon: location.isActive
+          ? Icons.radio_button_checked_rounded
+          : Icons.radio_button_off_rounded,
+      size: 46,
+      accent: location.isActive
+          ? Theme.of(context).colorScheme.primary
+          : Theme.of(context).colorScheme.onSurfaceVariant,
+    );
+  }
+}
+
+class _LocationBadge extends StatelessWidget {
+  const _LocationBadge({
+    required this.location,
+    required this.copy,
+  });
+
+  final LocationRecord location;
+  final PortalCopy copy;
+
+  @override
+  Widget build(BuildContext context) {
+    return PortalStatusBadge(
+      label: location.isActive ? copy.selected : copy.available,
+      icon: location.isActive ? Icons.check_rounded : Icons.place_outlined,
+    );
+  }
+}
+
+class _LocationVariantRow extends StatelessWidget {
+  const _LocationVariantRow({
+    required this.variant,
+    required this.copy,
+  });
+
+  final LocationVariantRecord variant;
+  final PortalCopy copy;
+
+  @override
+  Widget build(BuildContext context) {
+    final isComingSoon = variant.isComingSoon || !variant.isEnabled;
+    final statusLabel = isComingSoon
+        ? copy.comingSoon
+        : (variant.isActive ? copy.activeRoute : copy.available);
+    final statusIcon = isComingSoon
+        ? Icons.lock_clock_rounded
+        : (variant.isActive ? Icons.check_rounded : Icons.flash_on_rounded);
+
+    return PortalListRow(
+      title: variant.label,
+      leading: PremiumIconOrb(
+        icon: isComingSoon ? Icons.lock_clock_rounded : Icons.alt_route_rounded,
+        size: 38,
+      ),
+      trailing: PortalStatusBadge(
+        label: statusLabel,
+        icon: statusIcon,
       ),
     );
   }

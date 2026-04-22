@@ -57,7 +57,6 @@ void main() {
         equals([
           const SingboxRule(
             ruleSetUrl: kBlockedOnlyRuleSetUrl,
-            outbound: RuleOutbound.proxy,
           ),
         ]),
       );

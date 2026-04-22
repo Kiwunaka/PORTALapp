@@ -127,12 +127,18 @@ void main() {
       await File('assets/translations/strings_fa.i18n.json').readAsString(),
     ) as Map<String, dynamic>;
 
-    expect(arabic['general']['appTitle'], 'POKROV');
-    expect(kurdish['general']['appTitle'], 'POKROV');
-    expect(persian['general']['appTitle'], 'POKROV');
+    final arabicGeneral = arabic['general'] as Map<String, dynamic>;
+    final kurdishGeneral = kurdish['general'] as Map<String, dynamic>;
+    final persianGeneral = persian['general'] as Map<String, dynamic>;
+    final kurdishPlay = kurdish['play'] as Map<String, dynamic>;
+    final persianPlay = persian['play'] as Map<String, dynamic>;
 
-    final kurdishText = kurdish['play']['full_description'] as String;
-    final persianText = persian['play']['full_description'] as String;
+    expect(arabicGeneral['appTitle'], 'POKROV');
+    expect(kurdishGeneral['appTitle'], 'POKROV');
+    expect(persianGeneral['appTitle'], 'POKROV');
+
+    final kurdishText = kurdishPlay['full_description'] as String;
+    final persianText = persianPlay['full_description'] as String;
     expect(kurdishText, isNot(contains('NikitaSH999/pokrov-vpn')));
     expect(persianText, isNot(contains('NikitaSH999/pokrov-vpn')));
     expect(persianText, contains('POKROV'));
@@ -195,7 +201,7 @@ void main() {
     expect(releaseSetup, contains('space.pokrov.vpn'));
     expect(releaseSetup, isNot(contains('defaults to `app.hiddify.com`')));
     expect(
-        windowsStoreReleaseWorkflow, contains('pokrov-windows-setup-x64'));
+        windowsStoreReleaseWorkflow, contains('pokrov-windows-setup-x64'),);
     expect(
       windowsStoreReleaseWorkflow,
       isNot(contains('asset-name-pattern: Hiddify-Windows-Setup-x64')),
@@ -220,7 +226,7 @@ void main() {
     expect(
       legacyBuildWorkflow,
       contains(
-          'https://api.github.com/repos/\${RELEASE_REPOSITORY}/releases/latest'),
+          'https://api.github.com/repos/\${RELEASE_REPOSITORY}/releases/latest',),
     );
     expect(
       legacyBuildWorkflow,
@@ -232,7 +238,7 @@ void main() {
       legacyBuildWorkflow,
       isNot(
         contains(
-            'https://api.github.com/repos/hiddify/hiddify-next/releases/latest'),
+            'https://api.github.com/repos/hiddify/hiddify-next/releases/latest',),
       ),
     );
   });
@@ -249,15 +255,15 @@ void main() {
     ).readAsString();
 
     expect(
-        releaseWorkflow, contains('Legacy release.yml publishing is disabled'));
+        releaseWorkflow, contains('Legacy release.yml publishing is disabled'),);
     expect(releaseWorkflow,
-        isNot(contains('uses: ./.github/workflows/build.yml')));
+        isNot(contains('uses: ./.github/workflows/build.yml')),);
     expect(forkReleaseWorkflow, contains('validate-release-inputs'));
     expect(forkReleaseWorkflow, contains('ANDROID_SIGNING_KEY'));
     expect(forkReleaseWorkflow, contains('WINDOWS_SIGNING_KEY'));
     expect(forkReleaseWorkflow, contains('sed \\'));
     expect(forkReleaseWorkflow,
-        contains('appcast.xml > release-meta/appcast.xml'));
+        contains('appcast.xml > release-meta/appcast.xml'),);
     expect(
       forkReleaseWorkflow,
       contains(r'TAG="${{ needs.prepare.outputs.tag }}"'),
@@ -362,11 +368,11 @@ void main() {
     expect(
       brandingScript,
       contains(
-          'FORK_REPO_URL or GITHUB_REPOSITORY must be set for release branding.'),
+          'FORK_REPO_URL or GITHUB_REPOSITORY must be set for release branding.',),
     );
     expect(brandingScript, contains('releases/latest/download/appcast.xml'));
     expect(flutterTestConfig, contains('dist/tmp/pokrov/sqlite3.dll'));
     expect(flutterTestConfig,
-        isNot(contains('dist/tmp/hiddify-next/sqlite3.dll')));
+        isNot(contains('dist/tmp/hiddify-next/sqlite3.dll')),);
   });
 }

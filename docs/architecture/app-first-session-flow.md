@@ -1,6 +1,6 @@
 # App-First Session Flow
 
-Last updated: 2026-04-15
+Last updated: 2026-04-18
 
 ## Document Status
 
@@ -8,7 +8,9 @@ This file is the living client architecture note for app-first identity and prov
 
 ## Goal
 
-Replace Telegram-first access with an app-native identity and provisioning flow for `POKROV`.
+Replace Telegram-first access with an app-native identity and provisioning flow
+for `POKROV`, while keeping a compatible key-based bridge for the full
+`Android + iOS + macOS + Windows` target.
 
 ## Core Principle
 
@@ -33,7 +35,6 @@ UI state alone is not enough. The backend must create a working account, a worki
    - `client_policy`
    - `access`
    - `provisioning`
-   - experience payload
 9. App silently imports the subscription URL and prepares the managed profile.
 10. App asks how this device should be optimized before the first live route activation.
 11. App saves the chosen per-device route policy.
@@ -48,6 +49,12 @@ Contract note:
 - the client no longer sends caller-controlled `trial_days`
 - the backend always enforces the canonical `5-day` trial from the shared surface facts
 - `provisioning.status` must expose whether the profile is ready immediately or still pending sync
+- the client should resolve importable access in this order:
+  `access.subscription_url`, `provisioning.subscription_url`,
+  `session.subscription_url`
+- the current backend no longer emits a public root-level `subscription_url`; the client still accepts older compatibility payloads if support or recovery paths surface them
+  while the platform cleanup wave finishes; client docs and tests must not treat
+  it as the long-term primary contract
 - the app should read one additive `client_policy` contract from `start-trial`, `user`, and `dashboard` instead of inferring defaults from stale local assumptions
 - the same additive contract should also carry device route-mode state instead of forcing the app to guess from local toggles
 - the persisted route choice should round-trip through backend-owned `route_mode`, `selected_apps`, `requires_elevated_privileges`, and mirrored `route_policy.*` fields
@@ -75,6 +82,30 @@ Current `client_policy` fields:
 - `support_context.routing_mode`
 - `support_context.ip_version_preference`
 - `support_recovery_order`
+
+## Two-Track Client Strategy
+
+The bridge repo now treats client activation as two coordinated tracks:
+
+1. `automatic activation first`
+   The app-first flow provisions managed access and should stay the primary
+   story wherever the backend can complete it.
+2. `key-based bridge`
+   Redeem, recovery, and compatible access-key delivery remain available across
+   all four target platforms so unfinished backend or packaging work does not
+   fragment the client story.
+
+Client rules:
+
+- `Android + Windows` remain the strongest managed-activation path today
+- `iOS + macOS` stay in the public target, but their near-term bridge story can
+  continue through compatible key-based delivery and install help until full
+  managed activation catches up
+- when managed provisioning falls back to a subscription/access-key path, the
+  client should still treat that as success and surface calm fallback messaging
+  rather than a blocking failure
+- the client must not invent a finished redeem backend contract before that API
+  is actually shipped
 
 ## Route-Mode Onboarding Contract
 
@@ -119,7 +150,9 @@ As of 2026-03-20, the client-side foundation already covers:
 - `Try free` action from the empty home screen
 - managed manifest fetch from `GET /api/client/profile/managed`
 - automatic application of the returned engine-aware config payload
-- `subscription_url` fallback for manual import and recovery when the managed manifest is unavailable
+- nested app-first `subscription_url` parsing with a temporary root-level
+  fallback for manual import and recovery when the managed manifest is
+  unavailable
 - install-scoped latency upload through `POST /api/client/nodes/latency-samples`
 
 That means the remaining work is mostly final UX polish and backend contract alignment rather than first-principles plumbing.
@@ -228,9 +261,15 @@ This is preferred over a Telegram-only identity model.
 
 ## Scope Note
 
-This client flow is the shipping `v1` path for:
+This client flow now documents the bridge target for:
 
 - `Android`
+- `iOS`
+- `macOS`
 - `Windows`
 
-For `iOS` and `macOS`, this document is a readiness reference only until Apple publication is formally approved.
+Current platform note:
+
+- `Android + Windows` still lead the automatic app-first activation path today
+- `iOS + macOS` remain bridge-target platforms whose public story currently
+  depends on compatible key-based delivery and later packaging work

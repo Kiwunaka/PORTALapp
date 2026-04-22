@@ -40,7 +40,7 @@ class QuickSettingsModal extends HookConsumerWidget {
               ),
             ),
             trailing: const Icon(FluentIcons.chevron_right_24_regular),
-            onTap: () => const ConfigOptionsRoute().go(context),
+            onTap: () => const DevicesRoute().go(context),
           ),
           ListTile(
             title: Text(
@@ -63,7 +63,7 @@ class QuickSettingsModal extends HookConsumerWidget {
                   : 'Open these only when recovery or support needs extra steps.',
             ),
             trailing: const Icon(FluentIcons.chevron_right_24_regular),
-            onTap: () => const ConfigOptionsRoute().go(context),
+            onTap: () => const DevicesRoute().go(context),
           ),
           const Gap(16),
         ],

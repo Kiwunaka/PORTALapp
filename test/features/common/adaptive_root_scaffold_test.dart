@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hiddify/core/router/app_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/preferences/preferences_provider.dart';
+import 'package:hiddify/core/router/app_router.dart';
 import 'package:hiddify/features/common/adaptive_root_scaffold.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,7 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   test('desktop tab locations use the canonical portal routes', () {
     expect(
-        tabLocations, ['/', '/locations', '/devices', '/profile', '/support']);
+        tabLocations, ['/', '/locations', '/devices', '/profile', '/support'],);
   });
 
   testWidgets('desktop shell shows brand chrome and all primary destinations', (

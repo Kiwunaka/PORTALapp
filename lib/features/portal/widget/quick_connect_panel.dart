@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/widget/premium_surfaces.dart';
+import 'package:hiddify/features/portal/config/portal_client_strategy.dart';
 import 'package:hiddify/features/portal/model/portal_models.dart';
 import 'package:hiddify/features/portal/widget/portal_copy.dart';
 import 'package:hiddify/features/portal/widget/portal_widgets.dart';
@@ -26,6 +27,7 @@ class PortalQuickConnectPanel extends StatelessWidget {
     final heroTitle = copy.heroStatusTitle(
       trialLike: experience.subscription.isTrialLike,
     );
+    final transportVariant = resolvePortalTransportVariant(experience);
     final metricWidth = portalAdaptiveTileWidth(context);
     final useCompactLayout = portalUseCompactLayout(context);
 
@@ -106,6 +108,17 @@ class PortalQuickConnectPanel extends StatelessWidget {
                                     color: theme.colorScheme.onSurfaceVariant,
                                   ),
                                 ),
+                                if (transportVariant != null) ...[
+                                  const Gap(10),
+                                  Text(
+                                    copy.transportVariantBadge(
+                                      transportVariant.badgeLabel,
+                                    ),
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           ),
@@ -150,6 +163,17 @@ class PortalQuickConnectPanel extends StatelessWidget {
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
+                            if (transportVariant != null) ...[
+                              const Gap(10),
+                              Text(
+                                copy.transportVariantBadge(
+                                  transportVariant.badgeLabel,
+                                ),
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hiddify/core/model/app_info_entity.dart';
-import 'package:hiddify/features/portal/config/portal_public_config.dart';
 import 'package:hiddify/core/widget/premium_surfaces.dart';
+import 'package:hiddify/features/portal/config/portal_public_config.dart';
 import 'package:hiddify/features/portal/model/portal_models.dart';
 import 'package:hiddify/features/portal/widget/portal_copy.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -305,16 +305,16 @@ double portalAdaptiveTileWidth(
 }) {
   final availableWidth = MediaQuery.sizeOf(context).width - horizontalPadding;
   if (preferredColumns <= 1) {
-    return availableWidth.clamp(minWidth, maxWidth).toDouble();
+    return availableWidth.clamp(minWidth, maxWidth);
   }
 
   final columnsWidth =
       (availableWidth - (spacing * (preferredColumns - 1))) / preferredColumns;
   if (columnsWidth >= minWidth) {
-    return columnsWidth.clamp(minWidth, maxWidth).toDouble();
+    return columnsWidth.clamp(minWidth, maxWidth);
   }
 
-  return availableWidth.clamp(minWidth, maxWidth).toDouble();
+  return availableWidth.clamp(minWidth, maxWidth);
 }
 
 bool portalUseCompactLayout(
@@ -347,14 +347,12 @@ class _PortalSupportDiagnosticsCompat {
   });
 
   factory _PortalSupportDiagnosticsCompat.fromPortal({
-    required dynamic portal,
+    required PortalExperience portal,
     required PortalPublicConfig config,
     AppInfoEntity? appInfo,
   }) {
-    final supportContext =
-        _readDynamic(() => portal.connectionPolicy.supportContext);
-    final managedManifest =
-        _readDynamic(() => portal.importPayload.managedManifest);
+    final supportContext = portal.connectionPolicy.supportContext;
+    final managedManifest = portal.importPayload.managedManifest;
 
     return _PortalSupportDiagnosticsCompat(
       accountId: _readString(
@@ -445,7 +443,7 @@ class _PortalSupportDiagnosticsCompat {
 }
 
 PortalSupportDiagnostics buildPortalSupportDiagnostics({
-  required dynamic portal,
+  required PortalExperience portal,
   required PortalPublicConfig config,
   AppInfoEntity? appInfo,
 }) {
@@ -527,9 +525,7 @@ Uri buildPortalSupportEmailUri({
     queryParameters: {
       'subject': '$appLabel support request',
       'body': [
-        isRussian
-            ? 'Опишите, что именно не работает:'
-            : 'Describe what is going wrong:',
+        if (isRussian) 'Опишите, что именно не работает:' else 'Describe what is going wrong:',
         '',
         buildPortalDiagnosticsText(
           diagnostics: diagnostics,

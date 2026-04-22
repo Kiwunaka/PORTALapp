@@ -24,7 +24,6 @@ class NewVersionDialog extends HookConsumerWidget with PresLogger {
     if (_dialogKey.currentContext == null) {
       return showDialog(
         context: context,
-        useRootNavigator: true,
         builder: (context) => this,
       );
     } else {

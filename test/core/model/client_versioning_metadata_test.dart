@@ -36,7 +36,7 @@ void main() {
     expect(exeConfig, contains('publisher: POKROV'));
     expect(exeConfig, contains('display_name: POKROV'));
     expect(
-        exeConfig, contains('output_base_file_name: pokrov-windows-setup-x64'));
+        exeConfig, contains('output_base_file_name: pokrov-windows-setup-x64'),);
     expect(exeConfig, contains('install_dir_name: "{autopf64}\\\\POKROV"'));
 
     expect(msixConfig, contains('display_name: POKROV'));

@@ -42,9 +42,13 @@ void main() {
       expect(config.botUrl, equals('https://t.me/portal_one_bot'));
       expect(config.supportTelegramUrl, equals('https://t.me/portal_helpdesk'));
       expect(
-          config.androidApkUrl, equals('https://cdn.example.test/android.apk'));
+        config.androidApkUrl,
+        equals('https://cdn.example.test/android.apk'),
+      );
       expect(
-          config.windowsExeUrl, equals('https://cdn.example.test/windows.exe'));
+        config.windowsExeUrl,
+        equals('https://cdn.example.test/windows.exe'),
+      );
       expect(config.docsUrl, equals('https://docs.example.test/install'));
       expect(config.hasRemoteSessionAuth, isTrue);
       expect(config.isDemoMode, isFalse);

@@ -13,8 +13,6 @@ PortalExperience buildPortalExperienceFixture({
       deviceName: 'Android device',
       username: 'guest-acc_1',
       isAuthorized: true,
-      linkedTelegramId: 0,
-      linkedTelegramUsername: '',
     ),
     dashboard: DashboardSummary(
       isActive: true,
@@ -118,6 +116,15 @@ PortalExperience buildPortalExperienceFixture({
       smartUrl: 'https://portal.example.test/sub/trial?format=smart',
       plainUrl: 'https://portal.example.test/sub/trial?format=plain',
       qrValue: 'https://portal.example.test/sub/trial',
+      managedManifest: PortalManagedManifest(
+        transportKind: 'managed-http',
+      ),
+    ),
+    connectionPolicy: const PortalConnectionPolicy(
+      transportProfile: 'grpc_443_primary',
+      supportContext: PortalConnectionSupportContext(
+        transport: 'grpc_443_primary',
+      ),
     ),
   );
 }

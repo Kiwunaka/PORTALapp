@@ -30,7 +30,7 @@ abstract class LinkParser {
     'clash',
     'clashmeta',
     'sing-box',
-    ...brandedProtocols
+    ...brandedProtocols,
   };
 
   static ProfileLink? parse(String link) {

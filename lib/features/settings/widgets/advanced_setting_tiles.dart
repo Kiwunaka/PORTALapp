@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/router.dart';
-import 'package:hiddify/features/common/general_pref_tiles.dart';
 import 'package:hiddify/features/per_app_proxy/model/per_app_proxy_mode.dart';
 import 'package:hiddify/features/settings/notifier/platform_settings_notifier.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -40,8 +39,11 @@ class AdvancedSettingTiles extends HookConsumerWidget {
             trailing: Switch(
               value: perAppProxy,
               onChanged: (value) async {
-                final newMode = perAppProxy ? PerAppProxyMode.off : PerAppProxyMode.exclude;
-                await ref.read(Preferences.perAppProxyMode.notifier).update(newMode);
+                final newMode =
+                    perAppProxy ? PerAppProxyMode.off : PerAppProxyMode.exclude;
+                await ref
+                    .read(Preferences.perAppProxyMode.notifier)
+                    .update(newMode);
                 if (!perAppProxy && context.mounted) {
                   await const PerAppProxyRoute().push(context);
                 }
@@ -49,7 +51,9 @@ class AdvancedSettingTiles extends HookConsumerWidget {
             ),
             onTap: () async {
               if (!perAppProxy) {
-                await ref.read(Preferences.perAppProxyMode.notifier).update(PerAppProxyMode.exclude);
+                await ref
+                    .read(Preferences.perAppProxyMode.notifier)
+                    .update(PerAppProxyMode.exclude);
               }
               if (context.mounted) await const PerAppProxyRoute().push(context);
             },
@@ -61,7 +65,9 @@ class AdvancedSettingTiles extends HookConsumerWidget {
           value: !disableMemoryLimit,
           secondary: const Icon(FluentIcons.developer_board_24_regular),
           onChanged: (value) async {
-            await ref.read(Preferences.disableMemoryLimit.notifier).update(!value);
+            await ref
+                .read(Preferences.disableMemoryLimit.notifier)
+                .update(!value);
           },
         ),
         if (Platform.isIOS)

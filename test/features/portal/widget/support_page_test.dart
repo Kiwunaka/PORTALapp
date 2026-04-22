@@ -33,7 +33,7 @@ void main() {
           ),
           appInfoProvider.overrideWith(
             () => _FakeAppInfo(
-              AppInfoEntity(
+              const AppInfoEntity(
                 name: 'POKROV',
                 version: '2.4.0',
                 buildNumber: '240',
@@ -107,7 +107,6 @@ PortalExperience _experience() {
       plans: [],
     ),
     checkout: null,
-    devices: [],
     usage: UsageStats(
       usedGb: 1,
       totalGb: 15,

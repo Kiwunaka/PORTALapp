@@ -25,6 +25,13 @@ void main() {
     expect(find.text('+10 bonus days with Telegram'), findsOneWidget);
     expect(find.text('Link Telegram'), findsOneWidget);
     expect(find.text('Check bonus'), findsOneWidget);
+    expect(find.text('Automatic activation and key delivery'), findsOneWidget);
+    expect(find.text('Automatic activation first'), findsOneWidget);
+    expect(find.textContaining('Android / Windows'), findsOneWidget);
+    expect(
+        find.textContaining('Android / iOS / macOS / Windows'), findsOneWidget,);
+    expect(find.text('Redeem or add access key'), findsOneWidget);
+    expect(find.textContaining('NL-free'), findsOneWidget);
     expect(find.text('Access stays ready'), findsOneWidget);
     expect(find.text('Apps and documents'), findsOneWidget);
     expect(find.text('Open advanced settings'), findsOneWidget);
@@ -72,7 +79,6 @@ PortalExperience _experience() {
       plans: [],
     ),
     checkout: null,
-    devices: [],
     usage: UsageStats(
       usedGb: 1,
       totalGb: 15,

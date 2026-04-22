@@ -41,7 +41,7 @@ void main() {
       );
       expect(Constants.telegramChannelUrl, equals('https://t.me/pokrov_vpn'));
       expect(
-          Constants.privacyPolicyUrl, equals('https://pokrov.space/privacy'));
+          Constants.privacyPolicyUrl, equals('https://pokrov.space/privacy'),);
       expect(
         Constants.termsAndConditionsUrl,
         equals('https://pokrov.space/terms'),

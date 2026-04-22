@@ -43,6 +43,12 @@ void main() {
     expect(find.text('Zero setup. Five days of speed.'), findsOneWidget);
     expect(find.text('Start 5-day test-drive'), findsOneWidget);
     expect(find.text('Telegram bonus adds 10 more days'), findsOneWidget);
+    expect(find.text('4-platform target'), findsOneWidget);
+    expect(find.text('Automatic activation and key delivery'), findsOneWidget);
+    expect(find.text('Automatic activation first'), findsOneWidget);
+    expect(find.textContaining('Android / Windows'), findsOneWidget);
+    expect(find.text('Redeem or add access key'), findsWidgets);
+    expect(find.textContaining('NL-free'), findsOneWidget);
   });
 
   testWidgets('shows premium empty home state in Russian', (tester) async {

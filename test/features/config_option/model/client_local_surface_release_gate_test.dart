@@ -71,7 +71,7 @@ void main() {
 }
 
 SingboxConfigOption _baseConfig() {
-  return SingboxConfigOption(
+  return const SingboxConfigOption(
     region: 'other',
     routingMode: RoutingMode.global,
     blockAds: false,
@@ -91,7 +91,7 @@ SingboxConfigOption _baseConfig() {
     mtu: 9000,
     strictRoute: true,
     connectionTestUrl: 'http://cp.cloudflare.com',
-    urlTestInterval: const Duration(minutes: 10),
+    urlTestInterval: Duration(minutes: 10),
     enableClashApi: false,
     clashApiPort: 16756,
     enableTun: true,
@@ -102,14 +102,14 @@ SingboxConfigOption _baseConfig() {
     enableFakeDns: false,
     enableDnsRouting: true,
     independentDnsCache: true,
-    rules: const [],
-    mux: const SingboxMuxOption(
+    rules: [],
+    mux: SingboxMuxOption(
       enable: false,
       padding: false,
       maxStreams: 8,
       protocol: MuxProtocol.h2mux,
     ),
-    tlsTricks: const SingboxTlsTricks(
+    tlsTricks: SingboxTlsTricks(
       enableFragment: false,
       fragmentSize: OptionalRange(min: 10, max: 30),
       fragmentSleep: OptionalRange(min: 2, max: 8),
@@ -117,7 +117,7 @@ SingboxConfigOption _baseConfig() {
       enablePadding: false,
       paddingSize: OptionalRange(min: 1, max: 1500),
     ),
-    warp: const SingboxWarpOption(
+    warp: SingboxWarpOption(
       enable: false,
       mode: WarpDetourMode.proxyOverWarp,
       wireguardConfig: '',
@@ -131,7 +131,7 @@ SingboxConfigOption _baseConfig() {
       noiseDelay: OptionalRange(min: 10, max: 30),
       noiseMode: 'm4',
     ),
-    warp2: const SingboxWarpOption(
+    warp2: SingboxWarpOption(
       enable: false,
       mode: WarpDetourMode.proxyOverWarp,
       wireguardConfig: '',

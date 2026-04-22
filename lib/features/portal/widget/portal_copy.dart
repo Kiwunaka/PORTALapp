@@ -5,7 +5,7 @@ class PortalCopy {
 
   final bool isRussian;
 
-  static PortalCopy of(BuildContext context) {
+  factory PortalCopy.of(BuildContext context) {
     return PortalCopy._(
       Localizations.localeOf(context).languageCode.toLowerCase().startsWith(
             'ru',
@@ -122,6 +122,7 @@ class PortalCopy {
   String get recommended => isRussian ? 'Рекомендуется' : 'Recommended';
   String get selected => isRussian ? 'Выбрано' : 'Selected';
   String get available => isRussian ? 'Доступно' : 'Available';
+  String get comingSoon => isRussian ? 'Скоро' : 'Coming soon';
   String get bestAvailable =>
       isRussian ? 'Лучший доступный узел' : 'Best available';
   String get locationsGateTitle => isRussian
@@ -238,7 +239,7 @@ class PortalCopy {
       isRussian ? 'Приложения и документы' : 'Apps and documents';
   String get downloadsSubtitle => isRussian
       ? 'Установщики и документы для Android, Windows и сценариев восстановления.'
-      : 'Installers and docs for Android, Windows and recovery flows.';
+      : 'Install help, docs and recovery flows for Android, iOS, macOS and Windows.';
   String get advancedEyebrow => isRussian ? 'Расширенные' : 'Advanced';
   String get advancedTitle => isRussian ? 'Расширенные настройки' : 'Advanced';
   String get advancedSubtitle => isRussian
@@ -285,6 +286,34 @@ class PortalCopy {
       isRussian ? 'Продолжить в Telegram' : 'Continue in Telegram';
   String choosePlan(String label) =>
       isRussian ? 'Выбрать $label' : 'Choose $label';
+  String get continuationEyebrow => isRussian ? 'Продолжение' : 'Continuation';
+  String get continuationTitle => isRussian
+      ? 'Подключайтесь удобным для вас способом'
+      : 'Stay connected your way';
+  String get continuationSubtitle => isRussian
+      ? 'Апгрейд остается основным путем, но сообщество, free fallback и bridge-сценарии с ключом тоже остаются понятными.'
+      : 'Upgrade stays primary, while community bonus, free fallback, and the access-key bridge remain clear continuation paths.';
+  String get communityContinuationTitle =>
+      isRussian ? 'Сообщество +10 дней' : 'Community +10 days';
+  String get communityContinuationSubtitle => isRussian
+      ? 'Подпишитесь на публичный канал, а потом подтвердите бонус в профиле, когда вам удобно.'
+      : 'Join the public channel, then confirm the +10-day bonus from Profile whenever you are ready.';
+  String get redeemAccessEntrySubtitle => isRussian
+      ? 'Откройте bridge-сценарий: вставьте ключ, отсканируйте QR или добавьте доступ вручную без поиска сырой ссылки подписки.'
+      : 'Open the bridge flow to paste a key, scan a QR, or finish manual add without hunting for a raw subscription link.';
+  String get openAccessFlowAction =>
+      isRussian ? 'Открыть bridge' : 'Open access flow';
+  String freeTierContinuationExtended({
+    required int trafficGb,
+    required int periodDays,
+    required int deviceLimit,
+    required String nodePool,
+  }) =>
+      isRussian
+          ? 'Если апгрейд пока не нужен, легкий free fallback остается: $trafficGb ГБ каждые $periodDays дней на $deviceLimit ${deviceLimit == 1 ? 'устройстве' : 'устройствах'} через $nodePool.'
+          : 'If you are not ready to upgrade yet, free fallback stays available with $trafficGb GB every $periodDays days on $deviceLimit ${deviceLimit == 1 ? 'device' : 'devices'} via $nodePool.';
+  String transportVariantBadge(String variant) =>
+      isRussian ? 'Транспорт: $variant' : 'Transport: $variant';
   String planSummary({
     required int amountRub,
     required int days,
@@ -299,6 +328,9 @@ class PortalCopy {
   String get trialReadyToast => isRussian
       ? 'Тест-драйв запущен, магия скорости началась.'
       : 'Test-drive started. The magic is here.';
+  String get trialReadyFallbackToast => isRussian
+      ? 'Тест-драйв запущен. POKROV завершил настройку через совместимую схему ключевой доставки.'
+      : 'Test-drive started. POKROV finished setup through a compatible key-delivery path.';
   String trialError(Object error) => isRussian
       ? 'Не удалось запустить тест-драйв: $error'
       : 'Could not start the test-drive: $error';
@@ -318,20 +350,48 @@ class PortalCopy {
       isRussian ? 'Запустить тест-драйв на 5 дней' : 'Start 5-day test-drive';
   String get emptyStateSecondaryAction => isRussian
       ? 'Добавить ключ или подписку вручную'
-      : 'Add key or subscription manually';
+      : 'Redeem or add access key';
   String get profilesEyebrow => isRussian ? 'Профили' : 'Profiles';
   String get chooseActiveProfileTitle => isRussian
       ? 'Сначала выберите активный профиль'
       : 'Choose an active profile first';
-  String get trialPlatformsBadge => 'Android + Windows';
+  String get trialPlatformsBadge =>
+      isRussian ? 'Цель: 4 платформы' : '4-platform target';
+  String get activationEyebrow => isRussian ? 'Активация' : 'Activation';
+  String get activationTitle => isRussian
+      ? 'Автоматическая активация и ключевая доставка'
+      : 'Automatic activation and key delivery';
+  String get activationSubtitle => isRussian
+      ? 'POKROV держит автоматический app-first путь основным, а redeem и ключевая доставка остаются совместимым мостом для всех целевых платформ.'
+      : 'POKROV keeps the managed path first, while redeem and access-key delivery stay available as a compatibility bridge across the public target.';
+  String get automaticActivationTitle => isRussian
+      ? 'Автоматическая активация в приоритете'
+      : 'Automatic activation first';
+  String automaticActivationSubtitle(String platforms) => isRussian
+      ? '$platforms остаются на app-managed пути, когда активация доступна.'
+      : '$platforms stay on the app-managed path when activation is available.';
+  String get redeemAccessTitle => isRussian
+      ? 'Ввести код или добавить ключ доступа'
+      : 'Redeem or add access key';
+  String redeemAccessSubtitle(String platforms) => isRussian
+      ? 'Ключевая доставка сохраняет bridge- и recovery-сценарии на $platforms.'
+      : 'Key-based delivery keeps bridge and recovery access available on $platforms.';
+  String freeTierContinuation({
+    required int trafficGb,
+    required int periodDays,
+    required int deviceLimit,
+    required String nodePool,
+  }) =>
+      isRussian
+          ? 'После премиум-периода бесплатный доступ сохраняется: $trafficGb ГБ каждые $periodDays дней, $deviceLimit ${deviceLimit == 1 ? 'устройство' : 'устройства'}, узел $nodePool.'
+          : 'After premium time ends, free access continues with $trafficGb GB every $periodDays days on $deviceLimit ${deviceLimit == 1 ? 'device' : 'devices'} via $nodePool.';
   String get accessReadyTitle =>
       isRussian ? 'Доступ уже готов' : 'Access stays ready';
   String get accessReadySubtitle => isRussian
       ? 'POKROV поддерживает доступ на этом устройстве. Редкие сценарии восстановления остаются в расширенных настройках.'
       : 'POKROV keeps this device in sync. Edge-case recovery tools stay in Advanced settings.';
-  String get advancedRecoveryTools => isRussian
-      ? 'Инструменты восстановления'
-      : 'Advanced recovery tools';
+  String get advancedRecoveryTools =>
+      isRussian ? 'Инструменты восстановления' : 'Advanced recovery tools';
   String get advancedRecoveryToolsSubtitle => isRussian
       ? 'Совместимый импорт и редкие инструменты восстановления остаются в расширенных настройках.'
       : 'Compatibility import and rare recovery tools stay in Advanced settings.';
@@ -340,12 +400,10 @@ class PortalCopy {
   String get supportThreadsSubtitle => isRussian
       ? 'Если поддержка уже в работе, последние обновления появятся здесь.'
       : 'If help is already in motion, the latest updates appear here first.';
-  String get continueInWebCabinet => isRussian
-      ? 'Продолжить в веб-кабинете'
-      : 'Continue in web cabinet';
-  String get telegramSupportFallback => isRussian
-      ? 'Открыть Telegram-поддержку'
-      : 'Open Telegram fallback';
+  String get continueInWebCabinet =>
+      isRussian ? 'Продолжить в веб-кабинете' : 'Continue in web cabinet';
+  String get telegramSupportFallback =>
+      isRussian ? 'Открыть Telegram-поддержку' : 'Open Telegram fallback';
 
   String supportStatus(String raw) {
     final normalized = raw.trim().toLowerCase();

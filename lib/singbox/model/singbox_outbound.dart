@@ -1,4 +1,3 @@
-import 'package:dartx/dartx.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hiddify/singbox/model/singbox_proxy_type.dart';
 
@@ -15,7 +14,8 @@ class SingboxOutboundGroup with _$SingboxOutboundGroup {
     @Default([]) List<SingboxOutboundGroupItem> items,
   }) = _SingboxOutboundGroup;
 
-  factory SingboxOutboundGroup.fromJson(Map<String, dynamic> json) => _$SingboxOutboundGroupFromJson(json);
+  factory SingboxOutboundGroup.fromJson(Map<String, dynamic> json) =>
+      _$SingboxOutboundGroupFromJson(json);
 }
 
 @freezed
@@ -29,9 +29,8 @@ class SingboxOutboundGroupItem with _$SingboxOutboundGroupItem {
     required int urlTestDelay,
   }) = _SingboxOutboundGroupItem;
 
-  factory SingboxOutboundGroupItem.fromJson(Map<String, dynamic> json) => _$SingboxOutboundGroupItemFromJson(json);
+  factory SingboxOutboundGroupItem.fromJson(Map<String, dynamic> json) =>
+      _$SingboxOutboundGroupItemFromJson(json);
 }
-
-final Map<String, ProxyType> _keyMap = Map.fromEntries(ProxyType.values.map((e) => MapEntry(e.key, e)));
 
 ProxyType _typeFromJson(dynamic type) => ProxyType.fromJson(type);

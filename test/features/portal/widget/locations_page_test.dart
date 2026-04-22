@@ -7,7 +7,8 @@ import 'package:hiddify/features/portal/widget/locations_page.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 void main() {
-  testWidgets('shows auto-select and available locations', (tester) async {
+  testWidgets('shows auto-select and grouped location variants',
+      (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -26,7 +27,14 @@ void main() {
     expect(find.text('Locations'), findsOneWidget);
     expect(find.text('Auto-select'), findsOneWidget);
     expect(find.text('Best server right now'), findsOneWidget);
+    expect(find.textContaining('Managed HTTP'), findsOneWidget);
+    expect(find.textContaining('gRPC 443'), findsOneWidget);
     expect(find.text('Active route'), findsOneWidget);
+    expect(find.text('VLESS+REALITY'), findsOneWidget);
+    expect(find.text('VMess'), findsOneWidget);
+    expect(find.text('Trojan'), findsOneWidget);
+    expect(find.text('XHTTP'), findsOneWidget);
+    expect(find.text('Coming soon'), findsOneWidget);
     expect(find.text('Use'), findsNothing);
     expect(find.text('Netherlands'), findsWidgets);
     expect(find.text('Germany'), findsOneWidget);
@@ -93,7 +101,6 @@ PortalExperience _experience() {
       plans: [],
     ),
     checkout: null,
-    devices: [],
     locations: [
       LocationRecord(
         id: 'nl',
@@ -101,6 +108,26 @@ PortalExperience _experience() {
         subtitle: 'Amsterdam',
         regionLabel: 'Location',
         isActive: true,
+        variants: [
+          LocationVariantRecord(
+            id: 'vless-reality',
+            label: 'VLESS+REALITY',
+          ),
+          LocationVariantRecord(
+            id: 'vmess',
+            label: 'VMess',
+          ),
+          LocationVariantRecord(
+            id: 'trojan',
+            label: 'Trojan',
+          ),
+          LocationVariantRecord(
+            id: 'xhttp',
+            label: 'XHTTP',
+            isEnabled: false,
+            isComingSoon: true,
+          ),
+        ],
       ),
       LocationRecord(
         id: 'de',
@@ -126,6 +153,15 @@ PortalExperience _experience() {
       smartUrl: 'https://portal.example.test/sub/trial?format=smart',
       plainUrl: 'https://portal.example.test/sub/trial?format=plain',
       qrValue: 'https://portal.example.test/sub/trial',
+      managedManifest: PortalManagedManifest(
+        transportKind: 'managed-http',
+      ),
+    ),
+    connectionPolicy: PortalConnectionPolicy(
+      transportProfile: 'grpc_443_primary',
+      supportContext: PortalConnectionSupportContext(
+        transport: 'grpc_443_primary',
+      ),
     ),
   );
 }

@@ -18,7 +18,7 @@ class _TestAnalyticsController extends AnalyticsController {
 
 class _TestAppInfo extends AppInfo {
   @override
-  Future<AppInfoEntity> build() async => AppInfoEntity(
+  Future<AppInfoEntity> build() async => const AppInfoEntity(
         name: 'POKROV',
         version: '1.0.0',
         buildNumber: '1',

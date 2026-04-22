@@ -1,6 +1,6 @@
 # POKROV Implementation Backlog
 
-Last updated: 2026-04-15
+Last updated: 2026-04-18
 
 ## Current status
 
@@ -18,6 +18,25 @@ Already verified locally by the portal test pack:
 - `Profile` rewards and Telegram bonus entry points
 - browser checkout continuation from the app
 - in-app `Support` handoff with prepared device context
+
+Wave `0/1/6` foundation now safe to carry in the client bridge without waiting
+for finished backend work:
+
+- four-platform client target wording across `Android`, `iOS`, `macOS`, and
+  `Windows`
+- two-track client strategy scaffolding:
+  automatic activation first plus key-based delivery/redeem bridge
+- calm managed-to-key fallback messaging during trial activation
+- post-premium free-tier facts carried in client-owned source-of-truth:
+  `5 GB / 30 days / 1 device` on `NL-free`
+- subscription continuation UI that keeps browser upgrade primary while exposing
+  community `+10 days` and the access-key bridge without surfacing raw
+  subscription-link actions
+- sanitized transport hint rendering on current-route surfaces using existing
+  managed-manifest and client-policy data
+- grouped location transport rows when backend payloads provide
+  `location_variants`, with public ordering and gated `XHTTP` handling in the
+  client
 
 ## Remaining public-v1 blockers
 
@@ -61,6 +80,10 @@ Already verified locally by the portal test pack:
 ### Runtime launch verification
 
 - verify the shipping client uses the real backend contracts for trial, profile, support, and Telegram bonus in release builds
+- add the finished first-layer redeem contract only after the backend exposes a
+  stable app-safe API for it
+- free-form user-controlled transport switching still needs a later contract;
+  the current client only renders backend-provided `location_variants` safely
 - validate final download links and release handoff values after signed artifacts are published
 - confirm app, bot, and authenticated WebApp consume the same runtime `APP_*` values after handoff
 - rebuild static marketing exports when public Android or Windows URLs change so `NEXT_PUBLIC_APP_*` stays aligned
@@ -69,4 +92,6 @@ Already verified locally by the portal test pack:
 ## Explicit non-blockers for this wave
 
 - internal source identifiers such as the current Dart package name and `package:hiddify/...` imports remain a coordinated refactor, not a last-mile public-v1 blocker
-- `iOS` and `macOS` stay in readiness-only status for this release wave
+- Apple managed activation and direct public distribution still require later
+  packaging/runtime work even though the bridge repo now tracks them as part of
+  the public client target

@@ -8,6 +8,7 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/router.dart';
 import 'package:hiddify/core/widget/pokrov_logo.dart';
 import 'package:hiddify/core/widget/premium_surfaces.dart';
+import 'package:hiddify/features/portal/config/portal_client_strategy.dart';
 import 'package:hiddify/features/portal/data/portal_trial_activator.dart';
 import 'package:hiddify/features/portal/widget/portal_copy.dart';
 import 'package:hiddify/features/portal/widget/portal_widgets.dart';
@@ -22,8 +23,9 @@ class EmptyProfilesHomeBody extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final trialActivation = ref.watch(portalTrialActivationControllerProvider);
     final copy = PortalCopy.of(context);
+    final strategy = ref.watch(portalClientStrategyProvider);
 
-    ref.listen<AsyncValue<void>>(
+    ref.listen<AsyncValue<PortalTrialActivationResult?>>(
       portalTrialActivationControllerProvider,
       (previous, next) {
         final wasLoading = previous?.isLoading ?? false;
@@ -31,10 +33,14 @@ class EmptyProfilesHomeBody extends HookConsumerWidget {
 
         final messenger = ScaffoldMessenger.of(context);
         next.whenOrNull(
-          data: (_) {
+          data: (result) {
             messenger.showSnackBar(
               SnackBar(
-                content: Text(copy.trialReadyToast),
+                content: Text(
+                  result?.usedKeyBasedFallback == true
+                      ? copy.trialReadyFallbackToast
+                      : copy.trialReadyToast,
+                ),
               ),
             );
             unawaited(() async {
@@ -69,8 +75,7 @@ class EmptyProfilesHomeBody extends HookConsumerWidget {
     final secondary = copy.emptyStateSecondaryAction;
     final isCompact = MediaQuery.sizeOf(context).width < 460;
 
-    return SliverFillRemaining(
-      hasScrollBody: false,
+    return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
         child: Align(
@@ -93,7 +98,7 @@ class EmptyProfilesHomeBody extends HookConsumerWidget {
                         icon: FluentIcons.shield_24_regular,
                       ),
                       PortalStatusBadge(
-                        label: copy.trialPlatformsBadge,
+                        label: strategy.publicTargetBadgeLabel,
                         icon: FluentIcons.phone_desktop_24_regular,
                       ),
                     ],
@@ -129,7 +134,8 @@ class EmptyProfilesHomeBody extends HookConsumerWidget {
                             children: [
                               Text(
                                 title,
-                                style: Theme.of(context).textTheme.headlineMedium,
+                                style:
+                                    Theme.of(context).textTheme.headlineMedium,
                               ),
                               const Gap(10),
                               Text(
@@ -158,7 +164,9 @@ class EmptyProfilesHomeBody extends HookConsumerWidget {
                               const Gap(4),
                               Text(
                                 copy.emptyStateBonusBody,
-                                style: Theme.of(context).textTheme.bodyMedium
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
                                     ?.copyWith(
                                       color: Theme.of(context)
                                           .colorScheme
@@ -178,12 +186,16 @@ class EmptyProfilesHomeBody extends HookConsumerWidget {
                                   children: [
                                     Text(
                                       bonus,
-                                      style: Theme.of(context).textTheme.titleMedium,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium,
                                     ),
                                     const Gap(4),
                                     Text(
                                       copy.emptyStateBonusBody,
-                                      style: Theme.of(context).textTheme.bodyMedium
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
                                           ?.copyWith(
                                             color: Theme.of(context)
                                                 .colorScheme
@@ -195,6 +207,58 @@ class EmptyProfilesHomeBody extends HookConsumerWidget {
                               ),
                             ],
                           ),
+                  ),
+                  const Gap(20),
+                  PortalSectionCard(
+                    tone: PortalSectionTone.muted,
+                    padding: const EdgeInsets.all(18),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        PremiumSectionHeader(
+                          eyebrow: copy.activationEyebrow,
+                          title: copy.activationTitle,
+                          subtitle: copy.activationSubtitle,
+                        ),
+                        const Gap(14),
+                        _ActivationTrackRow(
+                          title: copy.automaticActivationTitle,
+                          subtitle: copy.automaticActivationSubtitle(
+                            strategy.automaticActivationPlatformLine,
+                          ),
+                          icon: const PremiumIconOrb(
+                            icon: Icons.flash_on_rounded,
+                            size: 42,
+                          ),
+                        ),
+                        const Gap(10),
+                        _ActivationTrackRow(
+                          title: copy.redeemAccessTitle,
+                          subtitle: copy.redeemAccessSubtitle(
+                            strategy.keyDeliveryPlatformLine,
+                          ),
+                          icon: const PremiumIconOrb(
+                            icon: Icons.key_rounded,
+                            size: 42,
+                          ),
+                        ),
+                        const Gap(12),
+                        Text(
+                          copy.freeTierContinuation(
+                            trafficGb: strategy.freeTier.trafficGb,
+                            periodDays: strategy.freeTier.periodDays,
+                            deviceLimit: strategy.freeTier.deviceLimit,
+                            nodePool: strategy.freeTier.nodePool,
+                          ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
+                        ),
+                      ],
+                    ),
                   ),
                   const Gap(20),
                   Wrap(
@@ -281,6 +345,45 @@ class EmptyActiveProfileHomeBody extends HookConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ActivationTrackRow extends StatelessWidget {
+  const _ActivationTrackRow({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+  });
+
+  final String title;
+  final String subtitle;
+  final Widget icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        icon,
+        const Gap(14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: theme.textTheme.titleMedium),
+              const Gap(4),
+              Text(
+                subtitle,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

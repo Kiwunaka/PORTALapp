@@ -1,6 +1,6 @@
 # POKROV Client Docs
 
-Last updated: 2026-04-15
+Last updated: 2026-04-18
 
 This folder contains living client-fork-specific documentation for `POKROV`.
 
@@ -42,10 +42,22 @@ For platform-wide truth, start at the root docs index:
 - Client docs must describe unavailable email delivery truthfully: if sender or webhook readiness is missing, browser email auth stays blocked or unavailable rather than "almost ready".
 - Client docs must treat visible product naming as `POKROV`; legacy `POKROV VPN` identifiers are compatibility-only.
 - Client docs must treat Windows release identity, executable naming, and packaged artifact canon as end-to-end `POKROV` / `pokrov`.
-- Client docs must treat `Android + Windows` as the full public `v1` scope.
-- Client docs must treat `iOS` and `macOS` as readiness-only in this release wave unless a later canonical doc changes that status.
+- Client docs must treat `Android`, `iOS`, `macOS`, and `Windows` as the public client target for this bridge repo.
+- Client docs must distinguish the two-track client strategy:
+  automatic app-first activation first on `Android + Windows`, plus a
+  key-based delivery and redeem/recovery bridge kept coherent across all four
+  target platforms.
+- Client docs must describe current public direct-download reality truthfully:
+  managed in-app activation and direct public distribution are strongest on
+  `Android + Windows`, while Apple bridge flows still depend on compatible
+  key-based delivery, install help, and later packaging work.
 - Client docs must use [external/logogo.png](C:/Users/kiwun/Documents/ai/VPN/external/logogo.png), [logo/logoclear.svg](C:/Users/kiwun/Documents/ai/VPN/logo/logoclear.svg), and [logo/logowithtext.svg](C:/Users/kiwun/Documents/ai/VPN/logo/logowithtext.svg) as the master brand assets for regenerated launcher, splash, tray, favicon, and share-preview outputs.
 - If a client doc conflicts with root canonical docs, update the client doc or explicitly mark the difference as planned work.
+- Client docs must describe post-premium free-tier continuation as
+  `5 GB / 30 days / 1 device` on the dedicated `NL-free` node.
+- Client docs must describe redeem and access-key flows as bridge-compatible
+  secondary paths until a later backend wave ships the final first-layer redeem
+  contract.
 - Client docs must not claim Android public-release readiness until release-build localhost/control-surface checks are complete.
 - Client docs must treat a local green `release_orchestrator.py --gates-only` snapshot as necessary but not sufficient; public release still needs live deploy/handoff truth and the required origin evidence.
 - Client docs must not present RU-aware routing as fully shipped until the routing strategy layer, DNS split rules, and leak checks are actually verified.

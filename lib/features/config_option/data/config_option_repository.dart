@@ -1,18 +1,15 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:dartx/dartx.dart';
+import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/optional_range.dart';
 import 'package:hiddify/core/model/region.dart';
-import 'package:hiddify/core/preferences/general_preferences.dart';
-
 import 'package:hiddify/core/utils/exception_handler.dart';
 import 'package:hiddify/core/utils/json_converters.dart';
 import 'package:hiddify/core/utils/preferences_utils.dart';
 import 'package:hiddify/features/config_option/model/config_option_failure.dart';
-
 import 'package:hiddify/features/log/model/log_level.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hiddify/singbox/model/singbox_config_option.dart';
@@ -97,8 +94,8 @@ abstract class ConfigOptions {
   );
 
   static final directDnsAddress = PreferencesNotifier.create<String, String>(
-      "direct-dns-address",
-      "udp://1.1.1.1",
+    "direct-dns-address",
+    "udp://1.1.1.1",
     possibleValues: List.of([
       "local",
       "udp://223.5.5.5",
@@ -608,7 +605,6 @@ List<SingboxRule> buildRoutingRules({
     RoutingMode.blockedOnly => const <SingboxRule>[
         SingboxRule(
           ruleSetUrl: kBlockedOnlyRuleSetUrl,
-          outbound: RuleOutbound.proxy,
         ),
       ],
   };
@@ -639,15 +635,12 @@ RoutingMode _readRoutingModePreference(String value) {
 }
 
 RoutingMode normalizeConsumerRoutingMode(RoutingMode value) {
-  return value == RoutingMode.blockedOnly
-      ? RoutingMode.allExceptRu
-      : value;
+  return value == RoutingMode.blockedOnly ? RoutingMode.allExceptRu : value;
 }
 
 List<RoutingMode> consumerRoutingChoices({RoutingMode? selected}) {
-  final normalizedSelected = selected == null
-      ? null
-      : normalizeConsumerRoutingMode(selected);
+  final normalizedSelected =
+      selected == null ? null : normalizeConsumerRoutingMode(selected);
   return const [RoutingMode.allExceptRu, RoutingMode.global]
       .where(
         (value) =>
@@ -660,10 +653,8 @@ String presentConsumerRoutingMode(RoutingMode value, Translations t) {
   final normalized = normalizeConsumerRoutingMode(value);
   final isRussian = t.$meta.locale.languageCode == 'ru';
   return switch (normalized) {
-    RoutingMode.allExceptRu =>
-      isRussian ? 'Все, кроме РФ' : 'All except RU',
+    RoutingMode.allExceptRu => isRussian ? 'Все, кроме РФ' : 'All except RU',
     RoutingMode.global => isRussian ? 'Полный туннель' : 'Full tunnel',
-    RoutingMode.blockedOnly =>
-      isRussian ? 'Все, кроме РФ' : 'All except RU',
+    RoutingMode.blockedOnly => isRussian ? 'Все, кроме РФ' : 'All except RU',
   };
 }

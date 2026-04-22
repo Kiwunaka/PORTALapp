@@ -19,12 +19,32 @@ final portalTrialActivatorProvider = Provider<PortalTrialActivator>(
   ),
 );
 
-final portalTrialActivationControllerProvider = StateNotifierProvider
-    .autoDispose<PortalTrialActivationController, AsyncValue<void>>(
+final portalTrialActivationControllerProvider =
+    StateNotifierProvider.autoDispose<PortalTrialActivationController,
+        AsyncValue<PortalTrialActivationResult?>>(
   (ref) => PortalTrialActivationController(ref),
 );
 
-class PortalTrialActivationController extends StateNotifier<AsyncValue<void>> {
+enum PortalActivationDeliveryPath {
+  managed,
+  keyBased,
+}
+
+class PortalTrialActivationResult {
+  const PortalTrialActivationResult({
+    required this.experience,
+    required this.deliveryPath,
+  });
+
+  final PortalExperience experience;
+  final PortalActivationDeliveryPath deliveryPath;
+
+  bool get usedKeyBasedFallback =>
+      deliveryPath == PortalActivationDeliveryPath.keyBased;
+}
+
+class PortalTrialActivationController
+    extends StateNotifier<AsyncValue<PortalTrialActivationResult?>> {
   PortalTrialActivationController(this.ref) : super(const AsyncData(null));
 
   final Ref ref;
@@ -33,12 +53,13 @@ class PortalTrialActivationController extends StateNotifier<AsyncValue<void>> {
     if (state.isLoading) return;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await ref
+      final result = await ref
           .read(portalTrialActivatorProvider)
           .activateTrial(locale: locale);
       ref.invalidate(activeProfileProvider);
       ref.invalidate(hasAnyProfileProvider);
       ref.invalidate(portalExperienceProvider);
+      return result;
     });
   }
 }
@@ -56,7 +77,7 @@ class PortalTrialActivator {
   final Future<ProfileRepository> Function() loadProfileRepository;
   final AppInfoEntity appInfo;
 
-  Future<PortalExperience> activateTrial({Locale? locale}) async {
+  Future<PortalTrialActivationResult> activateTrial({Locale? locale}) async {
     final request = PortalStartTrialRequest(
       installId: await sessionStore.ensureInstallId(),
       deviceName: _deviceNameFrom(appInfo),
@@ -86,7 +107,10 @@ class PortalTrialActivator {
               )
               .getOrElse((failure) => throw failure)
               .run();
-          return experience;
+          return PortalTrialActivationResult(
+            experience: experience,
+            deliveryPath: PortalActivationDeliveryPath.managed,
+          );
         }
       } catch (_) {
         if (subscriptionUrl.isEmpty) rethrow;
@@ -107,7 +131,10 @@ class PortalTrialActivator {
         .getOrElse((failure) => throw failure)
         .run();
 
-    return experience;
+    return PortalTrialActivationResult(
+      experience: experience,
+      deliveryPath: PortalActivationDeliveryPath.keyBased,
+    );
   }
 }
 

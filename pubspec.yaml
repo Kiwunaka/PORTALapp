@@ -136,6 +136,7 @@ dev_dependencies:
   go_router_builder: ^2.4.1
   dependency_validator: ^3.2.3
   dart_mappable_builder: ^4.2.3
+  sqlite3: ^2.4.5
 
 dependency_overrides:
   # drift & package_info_plus are not compatible

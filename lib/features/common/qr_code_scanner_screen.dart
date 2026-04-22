@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:dartx/dartx.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -27,10 +26,12 @@ class QRCodeScannerScreen extends StatefulHookConsumerWidget {
   }
 
   @override
-  ConsumerState<QRCodeScannerScreen> createState() => _QRCodeScannerScreenState();
+  ConsumerState<QRCodeScannerScreen> createState() =>
+      _QRCodeScannerScreenState();
 }
 
-class _QRCodeScannerScreenState extends ConsumerState<QRCodeScannerScreen> with WidgetsBindingObserver, PresLogger {
+class _QRCodeScannerScreenState extends ConsumerState<QRCodeScannerScreen>
+    with WidgetsBindingObserver, PresLogger {
   final MobileScannerController controller = MobileScannerController(
     detectionTimeoutMs: 500,
     autoStart: false,
@@ -71,13 +72,22 @@ class _QRCodeScannerScreenState extends ConsumerState<QRCodeScannerScreen> with 
 
     final completer = Completer<bool>();
 
-    void permissionCallback(int requestCode, List<Permissions>? perms, PermissionGroup? perm) {
+    void permissionCallback(
+      int requestCode,
+      List<Permissions>? perms,
+      PermissionGroup? perm,
+    ) {
       if (!completer.isCompleted) {
         completer.complete(true);
       }
     }
 
-    void permissionDeniedCallback(int requestCode, List<Permissions>? perms, PermissionGroup? perm, bool isPermanent) {
+    void permissionDeniedCallback(
+      int requestCode,
+      List<Permissions>? perms,
+      PermissionGroup? perm,
+      bool isPermanent,
+    ) {
       if (!completer.isCompleted) {
         completer.complete(false);
       }
@@ -264,7 +274,8 @@ class _QRCodeScannerScreenState extends ConsumerState<QRCodeScannerScreen> with 
                 final uri = Uri.tryParse(rawData);
                 if (context.mounted && uri != null) {
                   loggy.debug('captured url: [$uri]');
-                  Navigator.of(context, rootNavigator: true).pop(uri.toString());
+                  Navigator.of(context, rootNavigator: true)
+                      .pop(uri.toString());
                 }
               } else {
                 loggy.warning("unable to capture");
@@ -272,7 +283,8 @@ class _QRCodeScannerScreenState extends ConsumerState<QRCodeScannerScreen> with 
             },
             errorBuilder: (_, error, __) {
               final message = switch (error.errorCode) {
-                MobileScannerErrorCode.permissionDenied => t.profile.add.qrScanner.permissionDeniedError,
+                MobileScannerErrorCode.permissionDenied =>
+                  t.profile.add.qrScanner.permissionDeniedError,
                 _ => t.profile.add.qrScanner.unexpectedError,
               };
 

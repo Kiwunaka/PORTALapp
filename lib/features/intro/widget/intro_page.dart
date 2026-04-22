@@ -18,9 +18,7 @@ import 'package:sliver_tools/sliver_tools.dart';
 import 'package:timezone_to_country/timezone_to_country.dart';
 
 class IntroPage extends HookConsumerWidget with PresLogger {
-  IntroPage({super.key});
-
-  bool locationInfoLoaded = false;
+  const IntroPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,11 +30,12 @@ class IntroPage extends HookConsumerWidget with PresLogger {
     };
 
     final isStarting = useState(false);
+    final locationInfoLoaded = useRef(false);
 
-    if (!locationInfoLoaded) {
+    if (!locationInfoLoaded.value) {
       autoSelectRegion(ref)
           .then((value) => loggy.debug("Auto Region selection finished!"));
-      locationInfoLoaded = true;
+      locationInfoLoaded.value = true;
     }
 
     return Scaffold(
@@ -44,8 +43,8 @@ class IntroPage extends HookConsumerWidget with PresLogger {
         child: CustomScrollView(
           shrinkWrap: true,
           slivers: [
-            SliverToBoxAdapter(
-              child: const SizedBox(
+            const SliverToBoxAdapter(
+              child: SizedBox(
                 width: 224,
                 height: 224,
                 child: Padding(

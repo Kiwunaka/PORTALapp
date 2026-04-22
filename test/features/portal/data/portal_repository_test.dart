@@ -71,11 +71,10 @@ class _ThrowingPortalApiClient implements PortalApiClient {
 
 class _MemoryPortalSessionStore implements PortalSessionStore {
   _MemoryPortalSessionStore({
-    this.installId = 'install-123',
     this.sessionToken = '',
   });
 
-  final String installId;
+  final String installId = 'test-install-id';
   String sessionToken;
 
   @override
@@ -118,7 +117,7 @@ void main() {
                 },
                 'support_recovery_order': ['app', 'web', 'telegram'],
               },
-            }
+            },
           },
           '/api/dashboard': {
             'tg_id': 1001,
@@ -140,7 +139,7 @@ void main() {
                 'ip_version_preference': 'ipv4_only',
               },
             },
-            'features': {'haptic': true, 'lottie': false}
+            'features': {'haptic': true, 'lottie': false},
           },
           '/api/user/1001': {
             'tg_id': 1001,
@@ -186,14 +185,14 @@ void main() {
             'support': {
               'username': 'portal_helpdesk',
               'link': 'https://t.me/portal_helpdesk',
-              'new_ticket_link': 'https://t.me/portal_helpdesk?start=ticket'
+              'new_ticket_link': 'https://t.me/portal_helpdesk?start=ticket',
             },
             'actions': {
               'open_helpbot': 'https://t.me/portal_helpdesk',
               'open_channel': 'https://t.me/portal_privacy',
-              'pay_via_bot': 'https://t.me/portal_service_bot?start=pay'
+              'pay_via_bot': 'https://t.me/portal_service_bot?start=pay',
             },
-            'features': {'haptic': true, 'lottie': false}
+            'features': {'haptic': true, 'lottie': false},
           },
           '/api/public/plans': {
             'widget_enabled': true,
@@ -210,7 +209,7 @@ void main() {
                 'is_active': true,
                 'sort_order': 1,
               }
-            ]
+            ],
           },
           '/api/tickets?limit=6': {
             'tickets': [
@@ -229,9 +228,9 @@ void main() {
                     'body': 'Hello',
                     'created_at': '2026-03-18T10:00:00Z',
                   }
-                ]
+                ],
               }
-            ]
+            ],
           },
           '/api/client/apps': {
             'android': {
@@ -265,7 +264,7 @@ void main() {
                 'dns_sni_status': 'degraded',
                 'is_healthy': false,
               }
-            ]
+            ],
           },
         }),
         config: PortalPublicConfig.fromMap(const {
@@ -284,7 +283,7 @@ void main() {
       expect(experience.devices.single.platform, equals('Android'));
       expect(experience.locations, hasLength(2));
       expect(experience.locations.map((item) => item.title),
-          containsAll(<String>['Netherlands', 'Poland']));
+          containsAll(<String>['Netherlands', 'Poland']),);
       expect(experience.locations.first.subtitle, equals('Optimized route'));
       expect(experience.locations.last.subtitle, equals('Standby route'));
       expect(
@@ -298,13 +297,13 @@ void main() {
         isTrue,
       );
       expect(experience.locations.every((item) => item.regionLabel == 'Region'),
-          isTrue);
+          isTrue,);
       expect(experience.supportThreads.single.messages, hasLength(1));
       expect(experience.downloads.map((item) => item.platformLabel),
-          containsAll(<String>['Android', 'Windows']));
+          containsAll(<String>['Android', 'Windows']),);
       expect(experience.importPayload.smartUrl, contains('format=smart'));
       expect(
-          experience.subscription.payViaBotUrl, contains('portal_service_bot'));
+          experience.subscription.payViaBotUrl, contains('portal_service_bot'),);
       expect(experience.connectionPolicy.routingModeDefault, 'all_except_ru');
       expect(experience.connectionPolicy.transportProfile, 'grpc_443_primary');
       expect(experience.connectionPolicy.dnsPolicy, 'ru_direct_split');
@@ -344,7 +343,7 @@ void main() {
               'id': 1002,
               'username': 'bob',
               'client_policy': 'unexpected',
-            }
+            },
           },
           '/api/dashboard': {
             'tg_id': 1002,
@@ -391,6 +390,75 @@ void main() {
       expect(experience.subscription.plans, isNotEmpty);
     });
 
+    test('parses ordered location variants and keeps disabled xhttp gated',
+        () async {
+      final repository = PortalRepositoryImpl(
+        apiClient: _FakePortalApiClient({
+          '/api/auth/session': {
+            'ok': true,
+            'user': {
+              'id': 1003,
+              'username': 'matrix_user',
+            },
+          },
+          '/api/dashboard': {
+            'tg_id': 1003,
+            'sub_type': 'PAID',
+            'current_plan_code': '1_month',
+            'is_active': true,
+            'subscription_url': 'https://portal.example.test/sub/matrix',
+          },
+          '/api/user/1003': {
+            'tg_id': 1003,
+            'username': 'matrix_user',
+            'subscription_url': 'https://portal.example.test/sub/matrix',
+            'is_active': true,
+            'nodes': [
+              {
+                'code': 'nl',
+                'name': 'Netherlands',
+                'enabled': true,
+                'location_variants': [
+                  {'transport': 'trojan', 'enabled': true},
+                  {'transport': 'xhttp', 'enabled': false},
+                  {'transport': 'vmess', 'enabled': true},
+                  {'transport': 'vless_reality', 'enabled': true},
+                ],
+              },
+            ],
+          },
+          '/api/public/plans': const {
+            'plans': [],
+          },
+          '/api/tickets?limit=6': const {},
+          '/api/client/apps': const {},
+          '/api/nodes/status': const {},
+        }),
+        config: PortalPublicConfig.fromMap(const {}),
+        sessionStore:
+            _MemoryPortalSessionStore(sessionToken: 'runtime-session-123'),
+      );
+
+      final experience = await repository.getExperience();
+      final location = experience.locations.single;
+      final variants = location.variants;
+
+      expect(
+        variants.map((variant) => variant.label),
+        equals(<String>[
+          'VLESS+REALITY',
+          'VMess',
+          'Trojan',
+          'XHTTP',
+        ]),
+      );
+      expect(variants.last.isEnabled, isFalse);
+      expect(
+        (variants.last as dynamic).isComingSoon,
+        isTrue,
+      );
+    });
+
     test('falls back to demo experience when portal is unavailable', () async {
       final repository = PortalRepositoryImpl(
         apiClient: _ThrowingPortalApiClient(),
@@ -434,12 +502,10 @@ void main() {
                 'remaining_gb': 15,
                 'active_sessions': 0,
                 'device_limit': 1,
-                'subscription_url': 'https://portal.example.test/sub/trial',
               },
               'user': {
                 'account_id': 'acc_1001',
                 'username': 'guest-acc_1001',
-                'subscription_url': 'https://portal.example.test/sub/trial',
                 'is_active': true,
                 'sub_type': 'TRIAL',
                 'client_policy': {
@@ -532,12 +598,10 @@ void main() {
                 'remaining_gb': 15,
                 'active_sessions': 0,
                 'device_limit': 1,
-                'subscription_url': 'https://portal.example.test/sub/trial',
               },
               'user': {
                 'account_id': 'acc_1001',
                 'username': 'guest-acc_1001',
-                'subscription_url': 'https://portal.example.test/sub/trial',
                 'is_active': true,
                 'sub_type': 'TRIAL',
                 'client_policy': {
@@ -609,7 +673,7 @@ void main() {
               },
             },
           };
-        }),
+        },),
         config: PortalPublicConfig.fromMap(const {}),
         sessionStore: sessionStore,
       );
@@ -627,10 +691,10 @@ void main() {
       );
 
       expect(
-          sessionStore.readSessionTokenSync(), equals('runtime-session-123'));
+          sessionStore.readSessionTokenSync(), equals('runtime-session-123'),);
       expect(experience.isDemo, isFalse);
       expect(experience.session.isAuthorized, isTrue);
-      expect(experience.importPayload.subscriptionUrl, contains('/sub/trial'));
+      expect(experience.importPayload.subscriptionUrl, isEmpty);
       expect(experience.devices.single.title, equals('Android device'));
       expect(experience.locations.single.title, equals('Netherlands'));
       expect(experience.connectionPolicy.routingModeDefault, 'all_except_ru');
@@ -680,6 +744,150 @@ void main() {
       expect(capturedBody!['install_id'], equals('install-123'));
       expect(capturedBody!.containsKey('trial_days'), isFalse);
       expect(capturedBody!['locale'], equals('ru'));
+    });
+
+    test(
+        'startTrial reads the top-level app-first contract and prefers nested subscription urls',
+        () async {
+      final sessionStore = _MemoryPortalSessionStore();
+      final repository = PortalRepositoryImpl(
+        apiClient: _FakePortalApiClient(
+          const {},
+          onPost: (path, body) async {
+            return {
+              'session_token': 'runtime-session-456',
+              'account_id': 'acc_2001',
+              'subscription_url':
+                  'https://portal.example.test/sub/top-level-fallback',
+              'session': {
+                'session_token': 'runtime-session-456',
+                'account_id': 'acc_2001',
+                'subscription_url':
+                    'https://portal.example.test/sub/session-fallback',
+                'linked_telegram_username': 'portal_user',
+              },
+              'client_policy': {
+                'routing_mode_default': 'all_except_ru',
+                'transport_profile': 'grpc_443_primary',
+                'dns_policy': 'ru_direct_split',
+                'support_context': {
+                  'transport': 'grpc_443_primary',
+                },
+              },
+              'access': {
+                'sub_type': 'TRIAL',
+                'current_plan_code': 'trial_5_days',
+                'is_active': true,
+                'expiry_at': '2026-03-24T00:00:00Z',
+                'subscription_url':
+                    'https://portal.example.test/sub/from-access',
+                'trial_days': 5,
+              },
+              'provisioning': {
+                'status': 'ready',
+                'sync_ok': true,
+                'subscription_url':
+                    'https://portal.example.test/sub/from-provisioning',
+                'managed_manifest': {
+                  'url': '/api/client/profile/managed',
+                  'transport_kind': 'managed-http',
+                  'engine_hint': 'sing-box',
+                  'profile_revision': 'rev-8',
+                },
+              },
+            };
+          },
+        ),
+        config: PortalPublicConfig.fromMap(const {}),
+        sessionStore: sessionStore,
+      );
+
+      final experience = await repository.startTrial(
+        const PortalStartTrialRequest(
+          installId: 'install-456',
+          deviceName: 'Android device',
+          platform: 'android',
+          operatingSystemVersion: '14',
+          appVersion: '1.0.0',
+          localeTag: 'ru',
+          timeZone: 'MSK',
+        ),
+      );
+
+      expect(
+        sessionStore.readSessionTokenSync(),
+        equals('runtime-session-456'),
+      );
+      expect(experience.isDemo, isFalse);
+      expect(
+        experience.importPayload.subscriptionUrl,
+        equals('https://portal.example.test/sub/from-access'),
+      );
+      expect(
+        experience.importPayload.managedManifest.url,
+        equals('/api/client/profile/managed'),
+      );
+      expect(experience.connectionPolicy.transportProfile, 'grpc_443_primary');
+    });
+
+    test(
+        'startTrial keeps the temporary top-level subscription fallback when app-first fields omit it',
+        () async {
+      final repository = PortalRepositoryImpl(
+        apiClient: _FakePortalApiClient(
+          const {},
+          onPost: (path, body) async {
+            return {
+              'session_token': 'runtime-session-789',
+              'account_id': 'acc_3001',
+              'subscription_url':
+                  'https://portal.example.test/sub/top-level-fallback',
+              'session': {
+                'session_token': 'runtime-session-789',
+                'account_id': 'acc_3001',
+              },
+              'client_policy': {
+                'routing_mode_default': 'all_except_ru',
+              },
+              'access': {
+                'sub_type': 'TRIAL',
+                'current_plan_code': 'trial_5_days',
+                'is_active': true,
+              },
+              'provisioning': {
+                'status': 'pending_sync',
+                'sync_ok': false,
+                'managed_manifest': {
+                  'url': '/api/client/profile/managed',
+                },
+              },
+            };
+          },
+        ),
+        config: PortalPublicConfig.fromMap(const {}),
+        sessionStore: _MemoryPortalSessionStore(),
+      );
+
+      final experience = await repository.startTrial(
+        const PortalStartTrialRequest(
+          installId: 'install-789',
+          deviceName: 'Android device',
+          platform: 'android',
+          operatingSystemVersion: '14',
+          appVersion: '1.0.0',
+          localeTag: 'ru',
+          timeZone: 'MSK',
+        ),
+      );
+
+      expect(
+        experience.importPayload.subscriptionUrl,
+        equals('https://portal.example.test/sub/top-level-fallback'),
+      );
+      expect(
+        experience.importPayload.managedManifest.url,
+        equals('/api/client/profile/managed'),
+      );
     });
 
     test('requestTelegramLink returns deep link payload for app-first account',

@@ -204,6 +204,7 @@ class LocationRecord {
     required this.subtitle,
     required this.regionLabel,
     required this.isActive,
+    this.variants = const [],
   });
 
   final String id;
@@ -211,6 +212,23 @@ class LocationRecord {
   final String subtitle;
   final String regionLabel;
   final bool isActive;
+  final List<LocationVariantRecord> variants;
+}
+
+class LocationVariantRecord {
+  const LocationVariantRecord({
+    required this.id,
+    required this.label,
+    this.isEnabled = true,
+    this.isActive = false,
+    this.isComingSoon = false,
+  });
+
+  final String id;
+  final String label;
+  final bool isEnabled;
+  final bool isActive;
+  final bool isComingSoon;
 }
 
 class UsageStats {
@@ -458,8 +476,6 @@ class PortalExperience {
         deviceName: 'Current device',
         username: 'guest',
         isAuthorized: false,
-        linkedTelegramId: 0,
-        linkedTelegramUsername: '',
       ),
       dashboard: const DashboardSummary(
         isActive: false,
@@ -514,7 +530,6 @@ class PortalExperience {
           isActive: true,
         ),
       ],
-      locations: const [],
       usage: const UsageStats(
         usedGb: 0,
         totalGb: 30,

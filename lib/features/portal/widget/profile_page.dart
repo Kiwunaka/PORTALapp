@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:hiddify/core/router/routes.dart';
 import 'package:hiddify/core/widget/premium_surfaces.dart';
 import 'package:hiddify/features/common/nested_app_bar.dart';
+import 'package:hiddify/features/portal/config/portal_client_strategy.dart';
 import 'package:hiddify/features/portal/data/portal_repository.dart';
 import 'package:hiddify/features/portal/widget/portal_copy.dart';
 import 'package:hiddify/features/portal/widget/portal_widgets.dart';
@@ -17,6 +18,7 @@ class ProfilePage extends HookConsumerWidget {
     final copy = PortalCopy.of(context);
     final experience = ref.watch(portalExperienceProvider);
     final config = ref.watch(portalPublicConfigProvider);
+    final strategy = ref.watch(portalClientStrategyProvider);
     final isLinkingTelegram = useState(false);
     final isClaimingBonus = useState(false);
     final bonusStatus = useState<String?>(null);
@@ -212,6 +214,59 @@ class ProfilePage extends HookConsumerWidget {
                                   style: Theme.of(context).textTheme.bodyMedium,
                                 ),
                               ],
+                            ],
+                          ),
+                        ),
+                        const Gap(16),
+                        PortalSectionCard(
+                          tone: PortalSectionTone.muted,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              PremiumSectionHeader(
+                                eyebrow: copy.activationEyebrow,
+                                title: copy.activationTitle,
+                                subtitle: copy.activationSubtitle,
+                              ),
+                              const Gap(14),
+                              PortalListRow(
+                                title: copy.automaticActivationTitle,
+                                subtitle: copy.automaticActivationSubtitle(
+                                  strategy.automaticActivationPlatformLine,
+                                ),
+                                leading: const PremiumIconOrb(
+                                  icon: Icons.flash_on_rounded,
+                                  size: 42,
+                                ),
+                              ),
+                              const Gap(10),
+                              PortalListRow(
+                                title: copy.redeemAccessTitle,
+                                subtitle: copy.redeemAccessSubtitle(
+                                  strategy.keyDeliveryPlatformLine,
+                                ),
+                                leading: const PremiumIconOrb(
+                                  icon: Icons.key_rounded,
+                                  size: 42,
+                                ),
+                              ),
+                              const Gap(12),
+                              Text(
+                                copy.freeTierContinuation(
+                                  trafficGb: strategy.freeTier.trafficGb,
+                                  periodDays: strategy.freeTier.periodDays,
+                                  deviceLimit: strategy.freeTier.deviceLimit,
+                                  nodePool: strategy.freeTier.nodePool,
+                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                    ),
+                              ),
                             ],
                           ),
                         ),

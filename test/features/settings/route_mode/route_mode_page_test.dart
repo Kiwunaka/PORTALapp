@@ -167,7 +167,7 @@ void main() {
 
     if (find.text('Add .exe file').evaluate().isNotEmpty) {
       expect(find.text('Choose the .exe files that should use POKROV.'),
-          findsOneWidget);
+          findsOneWidget,);
       return;
     }
 

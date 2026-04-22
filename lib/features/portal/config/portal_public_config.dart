@@ -48,8 +48,8 @@ class PortalPublicConfig {
 
   bool get isDemoMode => !hasRemoteSessionAuth;
 
-  static PortalPublicConfig environment() {
-    return fromMap({
+  factory PortalPublicConfig.environment() {
+    return PortalPublicConfig.fromMap({
       if (const String.fromEnvironment('PORTAL_BRAND_NAME').trim().isNotEmpty)
         'PORTAL_BRAND_NAME': const String.fromEnvironment('PORTAL_BRAND_NAME'),
       if (const String.fromEnvironment('PORTAL_API_BASE_URL').trim().isNotEmpty)
@@ -130,7 +130,7 @@ class PortalPublicConfig {
     });
   }
 
-  static PortalPublicConfig fromMap(Map<String, String> raw) {
+  factory PortalPublicConfig.fromMap(Map<String, String> raw) {
     final apiBaseUrl = _cleanUrl(
       raw['PORTAL_API_BASE_URL'],
       fallback: PortalSharedPublicUrls.api,
@@ -208,7 +208,7 @@ String _normalizeTelegramUrl(String? raw, {required String fallback}) {
   if (value.startsWith('http://') || value.startsWith('https://')) {
     return value;
   }
-  return 'https://t.me/${value.replaceFirst(RegExp(r'^@+'), '')}';
+  return 'https://t.me/${value.replaceFirst(RegExp('^@+'), '')}';
 }
 
 String _normalizeCheckoutUrl(String? raw, {required String fallbackHost}) {

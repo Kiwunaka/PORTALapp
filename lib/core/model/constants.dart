@@ -2,19 +2,15 @@ abstract class Constants {
   static const appName = "POKROV";
   static const githubUrl = String.fromEnvironment(
     "PORTAL_RELEASE_REPOSITORY_URL",
-    defaultValue: "",
   );
   static const githubReleasesApiUrl = String.fromEnvironment(
     "PORTAL_RELEASES_API_URL",
-    defaultValue: "",
   );
   static const githubLatestReleaseUrl = String.fromEnvironment(
     "PORTAL_RELEASES_LATEST_URL",
-    defaultValue: "",
   );
   static const appCastUrl = String.fromEnvironment(
     "PORTAL_RELEASES_APPCAST_URL",
-    defaultValue: "",
   );
   static bool get hasReleaseRepositoryUrl => githubUrl.isNotEmpty;
   static bool get hasReleaseApiUrl => githubReleasesApiUrl.isNotEmpty;

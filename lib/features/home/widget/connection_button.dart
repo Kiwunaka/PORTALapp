@@ -214,7 +214,7 @@ class _ConnectionButton extends StatelessWidget {
                         theme.colorScheme.surface.withOpacity(
                           theme.brightness == Brightness.light ? 0.95 : 0.88,
                         ),
-                        theme.colorScheme.surfaceVariant.withOpacity(
+                        theme.colorScheme.surfaceContainerHighest.withOpacity(
                           theme.brightness == Brightness.light ? 0.72 : 0.44,
                         ),
                       ],
@@ -240,7 +240,7 @@ class _ConnectionButton extends StatelessWidget {
                           end: Alignment.bottomRight,
                           colors: [
                             theme.colorScheme.surface,
-                            theme.colorScheme.surfaceVariant.withOpacity(0.9),
+                            theme.colorScheme.surfaceContainerHighest.withOpacity(0.9),
                           ],
                         ),
                         boxShadow: [

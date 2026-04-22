@@ -120,6 +120,10 @@ class PortalRepositoryImpl implements PortalRepository {
       );
     }
 
+    if (_hasStartTrialContract(payload)) {
+      return _buildStartTrialExperience(payload, request);
+    }
+
     return getExperience();
   }
 
@@ -170,9 +174,22 @@ class PortalRepositoryImpl implements PortalRepository {
     required Map<String, dynamic> appsJson,
     required Map<String, dynamic> nodeStatusJson,
     Map<String, dynamic> provisioningJson = const {},
+    String subscriptionUrlFallback = '',
   }) {
     final sessionUser = _sessionUser(sessionJson);
-    final dashboard = _buildDashboardSummary(dashboardJson).copyWithNodeHealth(
+    final subscriptionUrl = _resolveSubscriptionUrl(
+      [
+        dashboardJson,
+        userJson,
+        provisioningJson,
+        sessionUser,
+      ],
+      fallback: subscriptionUrlFallback,
+    );
+    final dashboard = _buildDashboardSummary(
+      dashboardJson,
+      subscriptionUrlFallback: subscriptionUrl,
+    ).copyWithNodeHealth(
       healthyNodes: _healthyNodes(nodeStatusJson),
       totalNodes: _totalNodes(nodeStatusJson),
     );
@@ -254,7 +271,7 @@ class PortalRepositoryImpl implements PortalRepository {
       supportThreads: _buildSupportThreads(ticketsJson),
       downloads: _buildDownloadTargets(appsJson),
       importPayload: _buildImportPayload(
-        dashboard.connectionKey,
+        subscriptionUrl,
         provisioningJson: provisioningJson,
       ),
       connectionPolicy: _buildConnectionPolicy(
@@ -265,6 +282,67 @@ class PortalRepositoryImpl implements PortalRepository {
     );
   }
 
+  PortalExperience _buildStartTrialExperience(
+    Map<String, dynamic> payload,
+    PortalStartTrialRequest request,
+  ) {
+    final sessionJson = _map(payload['session']);
+    final accessJson = _map(payload['access']);
+    final clientPolicyJson = _map(payload['client_policy']);
+    final provisioningJson = _map(payload['provisioning']);
+    final accountId = _asString(
+      payload['account_id'],
+      fallback: _asString(sessionJson['account_id'], fallback: '0'),
+    );
+    final deviceName = _asString(
+      sessionJson['device_name'],
+      fallback: request.deviceName,
+    );
+    final username = _asString(
+      sessionJson['username'],
+      fallback: accountId == '0' ? 'user' : 'guest-$accountId',
+    );
+
+    return _buildExperience(
+      sessionJson: {
+        ...sessionJson,
+        'account_id': accountId,
+        'device_name': deviceName,
+        'username': username,
+        'is_authorized': _asBool(
+          sessionJson['is_authorized'],
+          fallback: true,
+        ),
+        'client_policy': clientPolicyJson,
+      },
+      dashboardJson: {
+        ...accessJson,
+        'client_policy': clientPolicyJson,
+      },
+      userJson: {
+        'account_id': accountId,
+        'device_name': deviceName,
+        'username': username,
+        'sub_type': _asString(accessJson['sub_type']),
+        'is_active': _asBool(accessJson['is_active']),
+        'expiry_at': accessJson['expiry_at'],
+        'client_policy': clientPolicyJson,
+      },
+      publicPlansJson: _map(payload['plans']),
+      ticketsJson: _map(payload['tickets']),
+      appsJson: _map(payload['apps']),
+      nodeStatusJson: _map(payload['node_status']),
+      provisioningJson: provisioningJson,
+      subscriptionUrlFallback: _asString(payload['subscription_url']),
+    );
+  }
+
+  bool _hasStartTrialContract(Map<String, dynamic> payload) {
+    return _map(payload['session']).isNotEmpty ||
+        _map(payload['access']).isNotEmpty ||
+        _map(payload['provisioning']).isNotEmpty;
+  }
+
   Future<Map<String, dynamic>> _safeGet(String path) async {
     try {
       return await apiClient.getJson(path);
@@ -273,7 +351,10 @@ class PortalRepositoryImpl implements PortalRepository {
     }
   }
 
-  DashboardSummary _buildDashboardSummary(Map<String, dynamic> json) {
+  DashboardSummary _buildDashboardSummary(
+    Map<String, dynamic> json, {
+    String subscriptionUrlFallback = '',
+  }) {
     final isActive = _asBool(json['is_active']);
     final subType = _asString(json['sub_type'], fallback: 'Trial');
     final planLabel = _asString(json['current_plan_code'], fallback: subType);
@@ -290,7 +371,10 @@ class PortalRepositoryImpl implements PortalRepository {
       remainingGb: _asDouble(json['remaining_gb']),
       activeSessions: _asInt(json['active_sessions']),
       deviceLimit: _asInt(json['device_limit']),
-      connectionKey: _asString(json['subscription_url']),
+      connectionKey: _asString(
+        json['subscription_url'],
+        fallback: subscriptionUrlFallback,
+      ),
       healthyNodes: 0,
       totalNodes: 0,
     );
@@ -376,8 +460,124 @@ class PortalRepositoryImpl implements PortalRepository {
         subtitle: _safeLocationSubtitle(data),
         regionLabel: 'Region',
         isActive: _asBool(data['enabled'], fallback: true),
+        variants: _buildLocationVariants(
+          locationCode: _asString(data['code'], fallback: 'node'),
+          nodePayload: data,
+          userPayload: userPayload,
+          nodeStatusPayload: nodeStatusPayload,
+        ),
       );
     }).toList();
+  }
+
+  List<LocationVariantRecord> _buildLocationVariants({
+    required String locationCode,
+    required Map<String, dynamic> nodePayload,
+    required Map<String, dynamic> userPayload,
+    required Map<String, dynamic> nodeStatusPayload,
+  }) {
+    final variantRows = _resolveLocationVariantRows(
+      locationCode: locationCode,
+      nodePayload: nodePayload,
+      userPayload: userPayload,
+      nodeStatusPayload: nodeStatusPayload,
+    );
+    if (variantRows.isEmpty) return const [];
+
+    final variants = <String, LocationVariantRecord>{};
+    for (final row in variantRows) {
+      final variant = _buildLocationVariant(_map(row));
+      if (variant == null) continue;
+      variants.putIfAbsent(variant.label, () => variant);
+    }
+
+    final ordered = variants.values.toList(growable: false);
+    ordered.sort((a, b) {
+      final orderA = _locationVariantOrder[a.label] ?? 999;
+      final orderB = _locationVariantOrder[b.label] ?? 999;
+      if (orderA != orderB) return orderA.compareTo(orderB);
+      return a.label.compareTo(b.label);
+    });
+    return ordered;
+  }
+
+  List<dynamic> _resolveLocationVariantRows({
+    required String locationCode,
+    required Map<String, dynamic> nodePayload,
+    required Map<String, dynamic> userPayload,
+    required Map<String, dynamic> nodeStatusPayload,
+  }) {
+    final directSources = [
+      _list(nodePayload['location_variants']),
+      _list(nodePayload['variants']),
+    ];
+    for (final source in directSources) {
+      if (source.isNotEmpty) return source;
+    }
+
+    final mappedSources = [
+      _list(_map(userPayload['location_variants'])[locationCode]),
+      _list(_map(nodeStatusPayload['location_variants'])[locationCode]),
+    ];
+    for (final source in mappedSources) {
+      if (source.isNotEmpty) return source;
+    }
+
+    return const [];
+  }
+
+  LocationVariantRecord? _buildLocationVariant(Map<String, dynamic> payload) {
+    final label = _normalizeLocationVariantLabel(
+      _asString(
+        payload['label'],
+        fallback: _asString(
+          payload['transport'],
+          fallback: _asString(
+            payload['protocol'],
+            fallback: _asString(
+              payload['kind'],
+              fallback: _asString(
+                payload['type'],
+                fallback: _asString(payload['code']),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    if (label.isEmpty) return null;
+
+    final status = _asString(payload['status']).toLowerCase();
+    final explicitlyComingSoon = _asBool(payload['is_coming_soon']) ||
+        status == 'coming_soon' ||
+        status == 'gated';
+    final isEnabled = _resolveLocationVariantEnabled(payload, status);
+    final isComingSoon =
+        explicitlyComingSoon || (label == 'XHTTP' && !isEnabled);
+
+    return LocationVariantRecord(
+      id: _asString(payload['id'], fallback: label.toLowerCase()),
+      label: label,
+      isEnabled: isEnabled,
+      isActive: _asBool(payload['is_active']) || _asBool(payload['active']),
+      isComingSoon: isComingSoon,
+    );
+  }
+
+  bool _resolveLocationVariantEnabled(
+    Map<String, dynamic> payload,
+    String normalizedStatus,
+  ) {
+    if (_hasBool(payload, 'enabled')) return _asBool(payload['enabled']);
+    if (_hasBool(payload, 'is_enabled')) return _asBool(payload['is_enabled']);
+    if (_hasBool(payload, 'available')) return _asBool(payload['available']);
+    if (_hasBool(payload, 'is_available')) {
+      return _asBool(payload['is_available']);
+    }
+    if (normalizedStatus == 'disabled' || normalizedStatus == 'coming_soon') {
+      return false;
+    }
+    return true;
   }
 
   List<SupportThread> _buildSupportThreads(Map<String, dynamic> payload) {
@@ -636,6 +836,53 @@ List<String> _firstPolicyStringList(
   }
   return const [];
 }
+
+String _resolveSubscriptionUrl(
+  Iterable<Map<String, dynamic>> sources, {
+  String fallback = '',
+}) {
+  for (final source in sources) {
+    final subscriptionUrl = _asString(source['subscription_url']);
+    if (subscriptionUrl.isNotEmpty) {
+      return subscriptionUrl;
+    }
+  }
+  return fallback;
+}
+
+bool _hasBool(Map<String, dynamic> source, String key) {
+  final value = source[key];
+  if (value is bool) return true;
+  if (value is String) {
+    final normalized = value.trim().toLowerCase();
+    return normalized == 'true' || normalized == 'false';
+  }
+  return false;
+}
+
+String _normalizeLocationVariantLabel(String raw) {
+  final normalized = raw.trim().toLowerCase();
+  if (normalized.isEmpty) return '';
+
+  return switch (normalized) {
+    'vless+reality' ||
+    'vless_reality' ||
+    'vless-reality' ||
+    'reality' =>
+      'VLESS+REALITY',
+    'vmess' => 'VMess',
+    'trojan' => 'Trojan',
+    'xhttp' => 'XHTTP',
+    _ => raw.trim(),
+  };
+}
+
+const Map<String, int> _locationVariantOrder = {
+  'VLESS+REALITY': 0,
+  'VMess': 1,
+  'Trojan': 2,
+  'XHTTP': 3,
+};
 
 List<String> _asStringList(Object? value) {
   if (value is! List) return const [];

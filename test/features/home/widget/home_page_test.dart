@@ -9,12 +9,12 @@ import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/settings/data/route_mode_preferences.dart';
 
-import '../../../test_helpers/premium_test_app.dart';
 import '../../../test_helpers/portal_experience_fixture.dart';
+import '../../../test_helpers/premium_test_app.dart';
 
 class _TestAppInfo extends AppInfo {
   @override
-  Future<AppInfoEntity> build() async => AppInfoEntity(
+  Future<AppInfoEntity> build() async => const AppInfoEntity(
         name: 'POKROV',
         version: '0.4.0-beta',
         buildNumber: '1',

@@ -32,6 +32,8 @@ void main() {
     expect(find.text('Test-drive is live'), findsOneWidget);
     expect(find.text('+10 bonus days'), findsOneWidget);
     expect(find.text('Choose server'), findsOneWidget);
+    expect(find.textContaining('Managed HTTP'), findsOneWidget);
+    expect(find.textContaining('gRPC 443'), findsOneWidget);
     expect(find.text('Active until'), findsOneWidget);
   });
 }

@@ -25,7 +25,7 @@ void main() {
           sharedPreferencesProvider.overrideWith((ref) => preferences),
           analyticsControllerProvider.overrideWith(_TestAnalyticsController.new),
         ],
-        child: IntroPage(),
+        child: const IntroPage(),
       ),
     );
 

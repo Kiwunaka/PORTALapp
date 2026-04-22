@@ -331,7 +331,7 @@ class ProfileRepositoryImpl
                 () async {
                   final profilePatch = remoteProfile.subInfoPatch().copyWith(
                       lastUpdate: Value(DateTime.now()),
-                      active: Value(baseProfile.active));
+                      active: Value(baseProfile.active),);
 
                   await profileDataSource.edit(
                     baseProfile.id,

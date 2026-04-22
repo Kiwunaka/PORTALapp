@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:hiddify/core/router/routes.dart';
 import 'package:hiddify/core/widget/premium_surfaces.dart';
 import 'package:hiddify/features/common/nested_app_bar.dart';
+import 'package:hiddify/features/portal/config/portal_client_strategy.dart';
 import 'package:hiddify/features/portal/data/portal_repository.dart';
 import 'package:hiddify/features/portal/widget/portal_copy.dart';
 import 'package:hiddify/features/portal/widget/portal_widgets.dart';
@@ -14,6 +16,8 @@ class SubscriptionPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final copy = PortalCopy.of(context);
     final experience = ref.watch(portalExperienceProvider);
+    final config = ref.watch(portalPublicConfigProvider);
+    final strategy = ref.watch(portalClientStrategyProvider);
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -110,6 +114,67 @@ class SubscriptionPage extends HookConsumerWidget {
                                     label: Text(copy.continueInTelegram),
                                   ),
                                 ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Gap(16),
+                        PortalSectionCard(
+                          tone: PortalSectionTone.muted,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              PremiumSectionHeader(
+                                eyebrow: copy.continuationEyebrow,
+                                title: copy.continuationTitle,
+                                subtitle: copy.continuationSubtitle,
+                              ),
+                              const Gap(14),
+                              PortalListRow(
+                                title: copy.communityContinuationTitle,
+                                subtitle: copy.communityContinuationSubtitle,
+                                leading: const PremiumIconOrb(
+                                  icon: Icons.campaign_rounded,
+                                  size: 42,
+                                ),
+                                trailing: OutlinedButton(
+                                  onPressed: () => launchPortalLink(
+                                    context,
+                                    config.newsChannelUrl,
+                                  ),
+                                  child: Text(copy.openChannelAction),
+                                ),
+                              ),
+                              const Gap(10),
+                              PortalListRow(
+                                title: copy.redeemAccessTitle,
+                                subtitle: copy.redeemAccessEntrySubtitle,
+                                leading: const PremiumIconOrb(
+                                  icon: Icons.key_rounded,
+                                  size: 42,
+                                ),
+                                trailing: OutlinedButton(
+                                  onPressed: () =>
+                                      const AddProfileRoute().push(context),
+                                  child: Text(copy.openAccessFlowAction),
+                                ),
+                              ),
+                              const Gap(12),
+                              Text(
+                                copy.freeTierContinuationExtended(
+                                  trafficGb: strategy.freeTier.trafficGb,
+                                  periodDays: strategy.freeTier.periodDays,
+                                  deviceLimit: strategy.freeTier.deviceLimit,
+                                  nodePool: strategy.freeTier.nodePool,
+                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                    ),
                               ),
                             ],
                           ),

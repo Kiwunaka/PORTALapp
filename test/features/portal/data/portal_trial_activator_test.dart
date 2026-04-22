@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
@@ -9,6 +10,7 @@ import 'package:hiddify/features/portal/data/portal_trial_activator.dart';
 import 'package:hiddify/features/portal/model/portal_models.dart';
 import 'package:hiddify/features/profile/data/profile_repository.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
+import 'package:hiddify/features/profile/model/profile_failure.dart';
 
 class _FakePortalRepository implements PortalRepository {
   _FakePortalRepository(
@@ -66,13 +68,10 @@ class _FakePortalRepository implements PortalRepository {
 }
 
 class _MemoryPortalSessionStore implements PortalSessionStore {
-  _MemoryPortalSessionStore({
-    this.installId = 'install-123',
-    this.sessionToken = '',
-  });
+  _MemoryPortalSessionStore();
 
-  final String installId;
-  String sessionToken;
+  final String installId = 'install-123';
+  String sessionToken = '';
 
   @override
   Future<void> clearSession() async {
@@ -110,10 +109,10 @@ class _FakeProfileRepository implements ProfileRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 
   @override
-  addByUrl(
+  TaskEither<ProfileFailure, Unit> addByUrl(
     String url, {
     bool markAsActive = false,
-    cancelToken,
+    CancelToken? cancelToken,
   }) {
     importedUrl = url;
     importedAsActive = markAsActive;
@@ -121,7 +120,7 @@ class _FakeProfileRepository implements ProfileRepository {
   }
 
   @override
-  addByContent(
+  TaskEither<ProfileFailure, Unit> addByContent(
     String content, {
     required String name,
     bool markAsActive = false,
@@ -134,20 +133,19 @@ class _FakeProfileRepository implements ProfileRepository {
 }
 
 void main() {
-  test(
-      'activateTrial fetches managed manifest first and imports content',
+  test('activateTrial fetches managed manifest first and imports content',
       () async {
     final repository = _FakePortalRepository(
-      PortalExperience(
+      const PortalExperience(
         isDemo: false,
-        session: const SessionSummary(
+        session: SessionSummary(
           tgId: 0,
           accountId: 'acc_1001',
           deviceName: 'Android device',
           username: 'guest-acc_1001',
           isAuthorized: true,
         ),
-        dashboard: const DashboardSummary(
+        dashboard: DashboardSummary(
           isActive: true,
           currentPlanLabel: 'Trial',
           statusHeadline: 'Ready to connect',
@@ -162,7 +160,7 @@ void main() {
           healthyNodes: 1,
           totalNodes: 1,
         ),
-        subscription: const SubscriptionState(
+        subscription: SubscriptionState(
           currentPlanCode: 'trial_5_days',
           currentPlanLabel: 'Trial',
           isTrialLike: true,
@@ -172,8 +170,7 @@ void main() {
           plans: [],
         ),
         checkout: null,
-        devices: const [],
-        usage: const UsageStats(
+        usage: UsageStats(
           usedGb: 0,
           totalGb: 15,
           remainingGb: 15,
@@ -182,13 +179,13 @@ void main() {
           healthyNodes: 1,
           totalNodes: 1,
         ),
-        supportThreads: const [],
-        downloads: const [],
-        importPayload: const ImportPayload(
-          subscriptionUrl: 'https://portal.example.test/sub/trial',
-          smartUrl: 'https://portal.example.test/sub/trial?format=smart',
-          plainUrl: 'https://portal.example.test/sub/trial?format=plain',
-          qrValue: 'https://portal.example.test/sub/trial',
+        supportThreads: [],
+        downloads: [],
+        importPayload: ImportPayload(
+          subscriptionUrl: '',
+          smartUrl: '',
+          plainUrl: '',
+          qrValue: '',
           managedManifest: PortalManagedManifest(
             url: '/api/client/managed-manifest/install-123',
             transportKind: 'managed-http',
@@ -204,7 +201,7 @@ void main() {
       portalRepository: repository,
       sessionStore: _MemoryPortalSessionStore(),
       loadProfileRepository: () async => profileRepository,
-      appInfo: AppInfoEntity(
+      appInfo: const AppInfoEntity(
         name: 'POKROV',
         version: '1.0.0',
         buildNumber: '100',
@@ -215,11 +212,12 @@ void main() {
       ),
     );
 
-    final experience = await activator.activateTrial(
+    final result = await activator.activateTrial(
       locale: const Locale('ru'),
     );
 
-    expect(experience.importPayload.subscriptionUrl, contains('/sub/trial'));
+    expect(result.deliveryPath, PortalActivationDeliveryPath.managed);
+    expect(result.experience.importPayload.subscriptionUrl, isEmpty);
     expect(profileRepository.importedUrl, isNull);
     expect(profileRepository.importedContent, equals('{"managed":true}'));
     expect(profileRepository.importedName, contains('managed'));
@@ -239,16 +237,16 @@ void main() {
       'activateTrial falls back to subscription url when managed manifest fetch fails',
       () async {
     final repository = _FakePortalRepository(
-      PortalExperience(
+      const PortalExperience(
         isDemo: false,
-        session: const SessionSummary(
+        session: SessionSummary(
           tgId: 0,
           accountId: 'acc_1001',
           deviceName: 'Android device',
           username: 'guest-acc_1001',
           isAuthorized: true,
         ),
-        dashboard: const DashboardSummary(
+        dashboard: DashboardSummary(
           isActive: true,
           currentPlanLabel: 'Trial',
           statusHeadline: 'Ready to connect',
@@ -263,7 +261,7 @@ void main() {
           healthyNodes: 1,
           totalNodes: 1,
         ),
-        subscription: const SubscriptionState(
+        subscription: SubscriptionState(
           currentPlanCode: 'trial_5_days',
           currentPlanLabel: 'Trial',
           isTrialLike: true,
@@ -273,8 +271,7 @@ void main() {
           plans: [],
         ),
         checkout: null,
-        devices: const [],
-        usage: const UsageStats(
+        usage: UsageStats(
           usedGb: 0,
           totalGb: 15,
           remainingGb: 15,
@@ -283,9 +280,9 @@ void main() {
           healthyNodes: 1,
           totalNodes: 1,
         ),
-        supportThreads: const [],
-        downloads: const [],
-        importPayload: const ImportPayload(
+        supportThreads: [],
+        downloads: [],
+        importPayload: ImportPayload(
           subscriptionUrl: 'https://portal.example.test/sub/trial',
           smartUrl: 'https://portal.example.test/sub/trial?format=smart',
           plainUrl: 'https://portal.example.test/sub/trial?format=plain',
@@ -302,7 +299,7 @@ void main() {
       portalRepository: repository,
       sessionStore: _MemoryPortalSessionStore(),
       loadProfileRepository: () async => profileRepository,
-      appInfo: AppInfoEntity(
+      appInfo: const AppInfoEntity(
         name: 'POKROV',
         version: '1.0.0',
         buildNumber: '100',
@@ -313,8 +310,9 @@ void main() {
       ),
     );
 
-    await activator.activateTrial(locale: const Locale('en'));
+    final result = await activator.activateTrial(locale: const Locale('en'));
 
+    expect(result.deliveryPath, PortalActivationDeliveryPath.keyBased);
     expect(repository.capturedManagedManifest, isNotNull);
     expect(
       profileRepository.importedUrl,

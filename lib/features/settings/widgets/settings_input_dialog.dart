@@ -23,7 +23,6 @@ class SettingsInputDialog<T> extends HookConsumerWidget with PresLogger {
   Future<T?> show(BuildContext context) async {
     return showDialog(
       context: context,
-      useRootNavigator: true,
       builder: (context) => this,
     );
   }
@@ -84,9 +83,7 @@ class SettingsInputDialog<T> extends HookConsumerWidget with PresLogger {
                   },
                   // Callback when a suggestion is selected
                   onSelected: (suggestion) {
-                    // Handle the selected suggestion
-                    print('Selected: $suggestion');
-                    textController.text = suggestion.toString();
+                    textController.text = suggestion;
                   },
                 )
               else
@@ -120,7 +117,7 @@ class SettingsInputDialog<T> extends HookConsumerWidget with PresLogger {
               child: TextButton(
                 onPressed: () async {
                   onReset!();
-                  await Navigator.of(context).maybePop(null);
+                  await Navigator.of(context).maybePop();
                 },
                 child: Text(t.general.reset.toUpperCase()),
               ),
@@ -139,7 +136,7 @@ class SettingsInputDialog<T> extends HookConsumerWidget with PresLogger {
             child: TextButton(
               onPressed: () async {
                 if (validator?.call(textController.value.text) == false) {
-                  await Navigator.of(context).maybePop(null);
+                  await Navigator.of(context).maybePop();
                 } else if (mapTo != null) {
                   await Navigator.of(context).maybePop(mapTo!.call(textController.value.text));
                 } else {
@@ -164,7 +161,7 @@ class AutocompleteField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Autocomplete<String>(
       initialValue: TextEditingValue(
-        text: this.initialValue, selection: TextSelection(baseOffset: 0, extentOffset: this.initialValue.length), // Selects the entire text
+        text: initialValue, selection: TextSelection(baseOffset: 0, extentOffset: initialValue.length), // Selects the entire text
       ),
       optionsBuilder: (TextEditingValue textEditingValue) {
         // if (textEditingValue.text == '') {
@@ -200,7 +197,6 @@ class SettingsPickerDialog<T> extends HookConsumerWidget with PresLogger {
   Future<T?> show(BuildContext context) async {
     return showDialog(
       context: context,
-      useRootNavigator: true,
       builder: (context) => this,
     );
   }
@@ -231,7 +227,7 @@ class SettingsPickerDialog<T> extends HookConsumerWidget with PresLogger {
           TextButton(
             onPressed: () async {
               onReset!();
-              await Navigator.of(context).maybePop(null);
+              await Navigator.of(context).maybePop();
             },
             child: Text(t.general.reset.toUpperCase()),
           ),
@@ -270,7 +266,6 @@ class SettingsSliderDialog extends HookConsumerWidget with PresLogger {
   Future<double?> show(BuildContext context) async {
     return showDialog(
       context: context,
-      useRootNavigator: true,
       builder: (context) => this,
     );
   }
@@ -299,7 +294,7 @@ class SettingsSliderDialog extends HookConsumerWidget with PresLogger {
           TextButton(
             onPressed: () async {
               onReset!();
-              await Navigator.of(context).maybePop(null);
+              await Navigator.of(context).maybePop();
             },
             child: Text(t.general.reset.toUpperCase()),
           ),

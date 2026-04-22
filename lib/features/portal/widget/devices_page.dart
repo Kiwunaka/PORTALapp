@@ -133,7 +133,7 @@ class DevicesPage extends HookConsumerWidget {
                                     if (device.title ==
                                         portal.session.deviceName)
                                       Padding(
-                                        padding: EdgeInsets.only(top: 4),
+                                        padding: const EdgeInsets.only(top: 4),
                                         child: PortalStatusBadge(
                                           label: copy.thisDevice,
                                           icon: Icons

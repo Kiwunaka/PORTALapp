@@ -23,6 +23,12 @@ void main() {
     expect(find.text('Subscription'), findsOneWidget);
     expect(find.text('Open secure checkout'), findsOneWidget);
     expect(find.text('Continue in Telegram'), findsOneWidget);
+    expect(find.text('Stay connected your way'), findsOneWidget);
+    expect(find.text('Community +10 days'), findsOneWidget);
+    expect(find.text('Redeem or add access key'), findsOneWidget);
+    expect(find.text('Open channel'), findsOneWidget);
+    expect(find.text('Open access flow'), findsOneWidget);
+    expect(find.textContaining('NL-free'), findsOneWidget);
     expect(find.text('Choose 30 days'), findsOneWidget);
   });
 }
@@ -73,7 +79,6 @@ PortalExperience _experience() {
       ],
     ),
     checkout: null,
-    devices: [],
     usage: UsageStats(
       usedGb: 1,
       totalGb: 15,

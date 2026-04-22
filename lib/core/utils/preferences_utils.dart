@@ -106,7 +106,7 @@ class PreferencesNotifier<T, P> extends StateNotifier<T> {
   final List<T>? possibleValues;
 
   static StateNotifierProvider<PreferencesNotifier<T, P>, T> create<T, P>(String key, T defaultValue,
-          {T Function(Ref ref)? defaultValueFunction, T Function(P value)? mapFrom, P Function(T value)? mapTo, bool Function(T value)? validator, T? overrideValue, List<T>? possibleValues}) =>
+          {T Function(Ref ref)? defaultValueFunction, T Function(P value)? mapFrom, P Function(T value)? mapTo, bool Function(T value)? validator, T? overrideValue, List<T>? possibleValues,}) =>
       StateNotifierProvider(
         (ref) => PreferencesNotifier._(
             ref: ref,
@@ -119,7 +119,7 @@ class PreferencesNotifier<T, P> extends StateNotifier<T> {
               validator: validator,
             ),
             overrideValue: overrideValue,
-            possibleValues: possibleValues),
+            possibleValues: possibleValues,),
       );
 
   static AutoDisposeStateNotifierProvider<PreferencesNotifier<T, P>, T> createAutoDispose<T, P>(
