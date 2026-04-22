@@ -6,6 +6,14 @@ Last updated: 2026-04-15
 
 This file is the living client architecture note for app-first identity and provisioning.
 
+## Legacy Bridge Scope
+
+This note now describes the retained bridge/hotfix client lane and current public release-truth behavior.
+
+- new client development truth belongs to `POKROV-app/main`
+- `app-next/` remains the temporary bootstrap-source workspace until that repo is bootstrapped locally
+- keep using this file when the legacy bridge lane, packaging continuity, or current release contracts change
+
 ## Goal
 
 Replace Telegram-first access with an app-native identity and provisioning flow for `POKROV`.

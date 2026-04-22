@@ -4,6 +4,11 @@ Last updated: 2026-04-15
 
 ## Current status
 
+Wave 0 note:
+
+- this backlog now tracks only bridge, release-truth, compatibility, and hotfix work in the retained legacy client lane
+- new client product-direction backlog should move into `POKROV-app/main` once that repo is bootstrapped locally
+
 The app-first foundation and the consumer information architecture are now largely in place.
 
 As of `2026-04-15`, the documented full `python scripts/release_orchestrator.py --gates-only` success snapshot remains the `2026-04-13` run, and the current repo-local `portal` client suite is green again after the latest support and premium-layout fixes.

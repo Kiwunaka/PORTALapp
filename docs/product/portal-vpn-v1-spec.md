@@ -6,6 +6,15 @@ Last updated: 2026-04-15
 
 This file is the living client product spec for `POKROV`.
 
+## Legacy Bridge Scope
+
+This spec now documents the retained bridge/hotfix client lane and current public Android+Windows release truth until formal cutover.
+
+- new client development truth belongs to `POKROV-app/main`
+- `app-next/` in the root repo is the temporary bootstrap-source workspace until that repo is bootstrapped locally
+- use this file for bridge behavior, release packaging continuity, compatibility, and rollback-safe reference work
+- do not treat this file as the default home for new primary-UX or product-direction changes after Wave 0
+
 ## Summary
 
 `POKROV` is a `consumer-first`, `app-first` connectivity application for `Android` and `Windows`.

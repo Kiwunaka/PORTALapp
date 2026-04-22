@@ -4,7 +4,12 @@ Last updated: 2026-04-15
 
 ## Goal
 
-Track the remaining brand-migration work for `POKROV` without accidentally destabilizing the shipping client fork.
+Track the remaining brand-migration work for `POKROV` without accidentally destabilizing the retained legacy bridge client fork.
+
+Wave 0 note:
+
+- this tracker is now bridge-only
+- new product-direction cleanup should move into `POKROV-app/main` once that repo is bootstrapped locally
 
 ## Branding
 

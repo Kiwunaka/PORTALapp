@@ -4,14 +4,25 @@ Last updated: 2026-04-22
 
 This folder contains living client-fork-specific documentation for `POKROV`.
 
-`external/client-fork/app/` is the default shipping-client workspace and the daily working checkout for the retained legacy client fork.
+`external/client-fork/app/` is the retained legacy bridge/hotfix workspace and the current public Android+Windows release/build/signing lane until formal cutover.
+
+Wave 7 deprecation note:
+
+- feature-direction work is frozen out of this lane
+- keep this docs tree for compatibility, rollback-safe release truth, and emergency bridge maintenance only
 
 Its nested location inside the platform repository is convenience-only:
 
-- day-to-day client implementation, packaging, and client-doc changes happen here
-- client truth still lands on `PORTALapp/main`
+- bridge-period packaging, hotfix, and release-doc changes happen here
+- new client development truth moves to `POKROV-app/main`
 - root platform docs and platform code still land on `portal/master`
 - do not treat the nested checkout as a second platform authority just because it is present under the same parent workspace
+
+Wave 0 lane note:
+
+- expected new client repo checkout after bootstrap: `C:/Users/kiwun/Documents/ai/POKROV-app`
+- that checkout is now bootstrapped locally; `app-next/` in the root repo remains transition/bootstrap reference material only
+- this legacy docs set remains authoritative only for bridge, hotfix, compatibility, and current release-truth behavior
 
 Legacy filename note:
 
@@ -27,13 +38,19 @@ For platform-wide truth, start at the root docs index:
 
 ## Workspace And Artifact Rules
 
-- treat `external/client-fork/app/` as the default local workspace for shipping-client edits, release packaging, and daily legacy-client maintenance
-- keep the broader repo split simple: client changes belong to `PORTALapp/main`, while root docs and other platform work belong to `portal/master`
+- treat `external/client-fork/app/` as the default local workspace only for bridge/hotfix edits, release packaging, and legacy-client maintenance
+- keep the broader repo split simple: new client-direction changes belong to `POKROV-app/main`, bridge-release changes belong to this legacy repo, and root docs plus other platform work belong to `portal/master`
 - retain `external/client-fork/app/out/` when it contains the canonical packaged bundle from the latest green rerun or any artifact still being verified, handed off, or distributed
 - treat raw client `build/` and `dist/` outputs as disposable local artifacts that may be rebuilt
 - do not confuse retained packaged outputs in `out/` with disposable raw build products
 
 ## Client Source Of Truth
+
+Bridge note:
+
+- this docs tree is no longer the long-term client canon for new product-direction work
+- use it when the retained bridge lane or current public release truth changes
+- use `app-next/docs/*` as bootstrap-source material until `POKROV-app/docs/*` exists locally
 
 ### Product
 
