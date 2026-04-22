@@ -1,8 +1,17 @@
 # POKROV Client Docs
 
-Last updated: 2026-04-15
+Last updated: 2026-04-22
 
 This folder contains living client-fork-specific documentation for `POKROV`.
+
+`external/client-fork/app/` is the default shipping-client workspace and the daily working checkout for the retained legacy client fork.
+
+Its nested location inside the platform repository is convenience-only:
+
+- day-to-day client implementation, packaging, and client-doc changes happen here
+- client truth still lands on `PORTALapp/main`
+- root platform docs and platform code still land on `portal/master`
+- do not treat the nested checkout as a second platform authority just because it is present under the same parent workspace
 
 Legacy filename note:
 
@@ -15,6 +24,14 @@ For platform-wide truth, start at the root docs index:
 - [Root Product Overview](C:/Users/kiwun/Documents/ai/VPN/docs/product/portal-vpn-product.md)
 - [Root Architecture Overview](C:/Users/kiwun/Documents/ai/VPN/docs/architecture/system-overview.md)
 - [Publishing And Signing Guide](C:/Users/kiwun/Documents/ai/VPN/docs/operations/publishing-and-signing-guide.md)
+
+## Workspace And Artifact Rules
+
+- treat `external/client-fork/app/` as the default local workspace for shipping-client edits, release packaging, and daily legacy-client maintenance
+- keep the broader repo split simple: client changes belong to `PORTALapp/main`, while root docs and other platform work belong to `portal/master`
+- retain `external/client-fork/app/out/` when it contains the canonical packaged bundle from the latest green rerun or any artifact still being verified, handed off, or distributed
+- treat raw client `build/` and `dist/` outputs as disposable local artifacts that may be rebuilt
+- do not confuse retained packaged outputs in `out/` with disposable raw build products
 
 ## Client Source Of Truth
 
@@ -51,7 +68,7 @@ For platform-wide truth, start at the root docs index:
 - Client docs must not present RU-aware routing as fully shipped until the routing strategy layer, DNS split rules, and leak checks are actually verified.
 - Client docs must describe only the currently shipped routing modes `Full tunnel` and `All except RU`; keep `Blocked only` as planned work until it exists in code and passes release verification.
 - Client docs must distinguish current public download targets from release/store artifacts: app surfaces currently expose Android `Play` / `APK` / mirror and Windows `EXE` / mirror, while `AAB`, `MSIX`, and portable `ZIP` stay operator/store artifacts.
-- Client docs must treat `external/client-fork/app/out/` as the canonical packaged Windows bundle after a final green rerun and treat raw client `build/` and `dist/` outputs as disposable local artifacts.
+- Client docs must treat `external/client-fork/app/out/` as the retained canonical packaged bundle after a final green rerun and treat raw client `build/` and `dist/` outputs as disposable local artifacts.
 - Client docs must describe `pokrov://` as the canonical public URI scheme and `pokrovvpn://` only as hidden compatibility handling where removal is not yet feasible.
 - Client docs must describe the consumer onboarding choice `Optimize everything on this device` vs `Only selected apps` and treat split tunneling as a first-layer product feature.
 - Client docs must describe persisted split-tunnel state through backend-owned `route_mode`, `selected_apps`, `requires_elevated_privileges`, and mirrored `route_policy.*` fields instead of implying that the choice is local-only UI state.
