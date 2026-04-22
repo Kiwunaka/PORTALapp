@@ -40,7 +40,8 @@ For platform-wide truth, start at the root docs index:
 
 - treat `external/client-fork/app/` as the default local workspace only for bridge/hotfix edits, release packaging, and legacy-client maintenance
 - keep the broader repo split simple: new client-direction changes belong to `POKROV-app/main`, bridge-release changes belong to this legacy repo, and root docs plus other platform work belong to `portal/master`
-- retain `external/client-fork/app/out/` when it contains the canonical packaged bundle from the latest green rerun or any artifact still being verified, handed off, or distributed
+- retain `external/client-fork/app/out/` locally when it contains the canonical packaged bundle from the latest green rerun or any artifact still being verified, signed, handed off, or distributed
+- because the bridge remote is a public fork that cannot accept new Git LFS release objects, mirror repo-backed alpha, beta, RC, and public release bundles into `C:/Users/kiwun/Documents/ai/POKROV-app/artifacts/releases/bridge/` instead of pretending this fork can be the long-term artifact archive
 - treat raw client `build/` and `dist/` outputs as disposable local artifacts that may be rebuilt
 - do not confuse retained packaged outputs in `out/` with disposable raw build products
 
